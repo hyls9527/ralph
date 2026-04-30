@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Ralph",
+  "version": "0.8.0",
+  "identifier": "com.ralph.app",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "title": "Ralph - GitHub 高质量项目发现与评估工具",
+        "width": 1024,
+        "height": 720,
+        "resizable": true,
+        "minWidth": 800,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; font-src 'self' data:; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "Ralph",
+    "copyright": "Copyright © 2026 Ralph",
+    "shortDescription": "GitHub 高质量项目发现与评估工具",
+    "longDescription": "Ralph 是一个 GitHub 项目发现与评估工具，三轨覆盖无盲区——挖掘被忽视的宝藏，甄别高星项目中的真金，评估稳态项目的品质。基于六维评估模型（满分105分），包含防博弈7层流水线机制。"
+  }
+}
