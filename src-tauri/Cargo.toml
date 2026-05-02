@@ -1,0 +1,33 @@
+[package]
+name = "ralph"
+version = "0.8.0"
+description = "GitHub 高质量项目发现与评估工具"
+license = "MIT"
+repository = "https://github.com/yourusername/ralph"
+homepage = "https://github.com/yourusername/ralph#readme"
+readme = "../README.md"
+keywords = ["github", "evaluation", "assessment", "gui", "desktop"]
+categories = ["development-tools", "gui"]
+authors = ["Ralph Team <ralph@example.com>"]
+edition = "2021"
+rust-version = "1.70"
+
+[lib]
+name = "ralph_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+ralph-core = { path = "../src-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tokio = { version = "1", features = ["rt", "macros", "time"] }
+uuid = { version = "1", features = ["v4"] }
+dirs = "5.0"
+
+[dev-dependencies]
+tokio-test = "0.4"

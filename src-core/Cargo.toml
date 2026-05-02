@@ -1,0 +1,29 @@
+[package]
+name = "ralph-core"
+version = "0.8.0"
+edition = "2021"
+description = "Ralph Core - GitHub 高质量项目发现与评估核心逻辑库"
+license = "MIT"
+repository = "https://github.com/yourusername/ralph"
+homepage = "https://github.com/yourusername/ralph#readme"
+readme = "../README.md"
+keywords = ["github", "evaluation", "assessment", "core", "developer-tools"]
+categories = ["development-tools", "algorithms"]
+authors = ["Ralph Team <ralph@example.com>"]
+rust-version = "1.70"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1", features = ["rt", "macros", "time"] }
+chrono = { version = "0.4", features = ["serde"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+thiserror = "1.0"
+urlencoding = "2.1"
+dirs = "5.0"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.12"
+tempfile = "3"

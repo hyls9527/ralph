@@ -1,0 +1,9 @@
+{
+  "identifier": "default",
+  "description": "Ralph default capability set",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:default"
+  ]
+}
