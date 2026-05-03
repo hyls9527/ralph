@@ -18,7 +18,9 @@ export const useAppStore = create<AppState>((set) => ({
   loading: { phase: 'idle', message: '' },
   token: '',
   setQuery: (q) => set({ query: q }),
-  setSearchResults: (results) => set({ results, loading: { phase: 'done', message: '' } }),
-  setLoading: (loading) => set((state) => ({ loading: { ...state.loading, ...loading } })),
+  setSearchResults: (results) =>
+    set({ results, loading: { phase: 'done', message: '' } }),
+  setLoading: (loading) =>
+    set((state) => ({ loading: { ...state.loading, ...loading } })),
   setToken: (token) => set({ token }),
 }));

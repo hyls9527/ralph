@@ -9,7 +9,9 @@ vi.mock('@tauri-apps/api/event', () => ({
 vi.mock('../../services/tauri', () => ({
   tauri: {
     getTrending: vi.fn().mockResolvedValue([]),
-    getDiscoveryStatus: vi.fn().mockResolvedValue({ running: false, discoveriesCount: 0 }),
+    getDiscoveryStatus: vi
+      .fn()
+      .mockResolvedValue({ running: false, discoveriesCount: 0 }),
     getDiscoveryResults: vi.fn().mockResolvedValue([]),
     getDiscoveryConfig: vi.fn().mockResolvedValue({
       topics: [],
@@ -62,7 +64,7 @@ describe('TrendingDiscovery', () => {
 
   it('渲染趋势和发现标签', () => {
     const html = renderToString(
-      <TrendingDiscovery onEvaluateProject={vi.fn()} />
+      <TrendingDiscovery onEvaluateProject={vi.fn()} />,
     );
     expect(html).toContain('趋势发现');
     expect(html).toContain('Trending');
@@ -71,7 +73,7 @@ describe('TrendingDiscovery', () => {
 
   it('渲染语言筛选按钮', () => {
     const html = renderToString(
-      <TrendingDiscovery onEvaluateProject={vi.fn()} />
+      <TrendingDiscovery onEvaluateProject={vi.fn()} />,
     );
     expect(html).toContain('All');
     expect(html).toContain('Rust');
@@ -79,14 +81,14 @@ describe('TrendingDiscovery', () => {
 
   it('渲染加载趋势按钮', () => {
     const html = renderToString(
-      <TrendingDiscovery onEvaluateProject={vi.fn()} />
+      <TrendingDiscovery onEvaluateProject={vi.fn()} />,
     );
     expect(html).toContain('加载趋势');
   });
 
   it('组件渲染不崩溃', () => {
     expect(() =>
-      renderToString(<TrendingDiscovery onEvaluateProject={vi.fn()} />)
+      renderToString(<TrendingDiscovery onEvaluateProject={vi.fn()} />),
     ).not.toThrow();
   });
 });

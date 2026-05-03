@@ -1,34 +1,51 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Ralph 品牌色 */
 :root {
-  --ralph-primary: #8B5CF6;
-  --ralph-primary-hover: #7C3AED;
-  --ralph-bg: #0F0F14;
-  --ralph-surface: #1A1A24;
-  --ralph-surface-hover: #22222F;
-  --ralph-border: #2A2A3A;
-  --ralph-text: #E4E4ED;
-  --ralph-text-muted: #8B8BA0;
-  --ralph-success: #10B981;
-  --ralph-warning: #F59E0B;
-  --ralph-error: #EF4444;
+  --ralph-primary: #8b5cf6;
+  --ralph-primary-hover: #7c3aed;
+  --ralph-bg: #0f0f14;
+  --ralph-surface: #1a1a24;
+  --ralph-surface-hover: #22222f;
+  --ralph-border: #2a2a3a;
+  --ralph-text: #e4e4ed;
+  --ralph-text-muted: #8b8ba0;
+  --ralph-success: #10b981;
+  --ralph-warning: #f59e0b;
+  --ralph-error: #ef4444;
 }
 
 /* 自定义动画 */
 @keyframes pulse-ring {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-spin-slow {

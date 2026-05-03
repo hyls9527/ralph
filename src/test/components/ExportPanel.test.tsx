@@ -32,7 +32,9 @@ vi.mock('../../i18n', () => ({
   },
 }));
 
-function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
+function makeProject(
+  overrides: Partial<ProjectRecommendation> = {},
+): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -59,7 +61,12 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
     valueDensity: 0.75,
     steadyState: 0.55,
     dimensions: [
-      { dimension: '质量', score: 18, maxScore: 20, subScores: [['测试', 5, 5]] },
+      {
+        dimension: '质量',
+        score: 18,
+        maxScore: 20,
+        subScores: [['测试', 5, 5]],
+      },
       { dimension: '维护', score: 12, maxScore: 15, subScores: [] },
       { dimension: '实用', score: 22, maxScore: 25, subScores: [] },
       { dimension: '文档', score: 10, maxScore: 15, subScores: [] },
@@ -72,7 +79,12 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
     evidenceLevel: 'L1',
     trustBadge: {
       level: 2,
-      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+      l1: {
+        status: 'recommended',
+        icon: '✓',
+        label: 'Ralph 推荐',
+        color: 'emerald',
+      },
     },
     vetoFlags: [],
     recommendationIndex: 129.0,
@@ -89,16 +101,21 @@ describe('ExportPanel', () => {
   });
 
   it('有项目时渲染导出按钮', () => {
-    const html = renderToString(
-      <ExportPanel projects={[makeProject()]} />
-    );
+    const html = renderToString(<ExportPanel projects={[makeProject()]} />);
     expect(html).toContain('导出 JSON');
     expect(html).toContain('导出 Markdown');
   });
 
   it('多个项目时渲染导出按钮', () => {
     const html = renderToString(
-      <ExportPanel projects={[makeProject(), makeProject({ repo: { ...makeProject().repo, fullName: 'other/repo' } })]} />
+      <ExportPanel
+        projects={[
+          makeProject(),
+          makeProject({
+            repo: { ...makeProject().repo, fullName: 'other/repo' },
+          }),
+        ]}
+      />,
     );
     expect(html).toContain('导出 JSON');
     expect(html).toContain('导出 Markdown');

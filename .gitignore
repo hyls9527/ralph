@@ -15,6 +15,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
@@ -60,6 +61,7 @@ e2e-report/
 .env.test
 credentials.json
 secrets.yaml
+!.env.example
 
 # OS generated files
 Thumbs.db
@@ -69,5 +71,12 @@ Thumbs.db
 *~
 
 # IDE specific files
-.vscode/settings.json (if contains secrets)
-.idea/ (if contains secrets)
+.idea/
+
+# Debug and test output files
+e2e/test-output.txt
+fix_errors.py
+fix_lib*.py
+fix_safe_db_op.ps1
+test_*.txt
+vitest-*.txt

@@ -53,7 +53,15 @@ describe('StatsDashboard', () => {
   });
 
   it('渲染空数据状态', async () => {
-    mockedTauri.getStats.mockResolvedValue({ total: 0, avgScore: 0, topScore: 0, recent7d: 0, favorites: 0, byGrade: [], byTrack: [] });
+    mockedTauri.getStats.mockResolvedValue({
+      total: 0,
+      avgScore: 0,
+      topScore: 0,
+      recent7d: 0,
+      favorites: 0,
+      byGrade: [],
+      byTrack: [],
+    });
     render(<StatsDashboard />);
     await waitFor(() => {
       expect(screen.getByText('暂无统计数据')).toBeTruthy();

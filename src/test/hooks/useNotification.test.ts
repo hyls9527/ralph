@@ -14,7 +14,11 @@ describe('useNotification', () => {
       requestPermission: vi.fn().mockResolvedValue('granted'),
     };
 
-    const MockNotification = vi.fn(function (this: { onclick: (() => void) | null; close: () => void }, _title: string, _options?: NotificationOptions) {
+    const MockNotification = vi.fn(function (
+      this: { onclick: (() => void) | null; close: () => void },
+      _title: string,
+      _options?: NotificationOptions,
+    ) {
       this.onclick = null;
       this.close = vi.fn();
     }) as unknown as typeof Notification;
@@ -79,7 +83,10 @@ describe('useNotification', () => {
     act(() => {
       result.current.notify({ title: 'test', body: 'test body' });
     });
-    expect(Notification).toHaveBeenCalledWith('test', expect.objectContaining({ body: 'test body' }));
+    expect(Notification).toHaveBeenCalledWith(
+      'test',
+      expect.objectContaining({ body: 'test body' }),
+    );
   });
 
   it('notifyDiscovery 发送发现通知', () => {
@@ -90,7 +97,7 @@ describe('useNotification', () => {
     });
     expect(Notification).toHaveBeenCalledWith(
       expect.stringContaining('Ralph'),
-      expect.objectContaining({ tag: 'discovery-test-repo' })
+      expect.objectContaining({ tag: 'discovery-test-repo' }),
     );
   });
 
@@ -102,7 +109,7 @@ describe('useNotification', () => {
     });
     expect(Notification).toHaveBeenCalledWith(
       expect.stringContaining('批量评估完成'),
-      expect.objectContaining({ tag: 'batch-complete' })
+      expect.objectContaining({ tag: 'batch-complete' }),
     );
   });
 

@@ -3,8 +3,8 @@ import { useUiStore } from '../stores/slices/uiSlice';
 import { setThemeToggle } from '../hooks/useKeyboardShortcuts';
 
 export function useTheme() {
-  const theme = useUiStore(s => s.theme);
-  const setTheme = useUiStore(s => s.setTheme);
+  const theme = useUiStore((s) => s.theme);
+  const setTheme = useUiStore((s) => s.setTheme);
 
   const toggleTheme = useCallback(() => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';

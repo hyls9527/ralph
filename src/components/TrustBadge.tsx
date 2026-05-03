@@ -15,7 +15,9 @@ const TrustBadge: React.FC<TrustBadgeProps> = ({ badge }) => {
   const colorClass = colorMap[badge.l1.color] || colorMap.amber;
 
   return (
-    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
+    <div
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}
+    >
       <span>{badge.l1.icon}</span>
       <span>{badge.l1.label}</span>
     </div>

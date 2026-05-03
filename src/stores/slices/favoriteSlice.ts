@@ -9,7 +9,10 @@ export interface FavoriteState {
   pending: Set<string>;
 
   loadFavorites: () => Promise<void>;
-  toggleFavorite: (fullName: string, project?: ProjectRecommendation) => Promise<void>;
+  toggleFavorite: (
+    fullName: string,
+    project?: ProjectRecommendation,
+  ) => Promise<void>;
   isFavorite: (fullName: string) => boolean;
   isPending: (fullName: string) => boolean;
 }
@@ -23,10 +26,13 @@ export const useFavoriteStore = create<FavoriteState>()(
       loadFavorites: async () => {
         try {
           const data = await tauri.getFavorites();
-          const favorites = new Set(data.map(f => f.fullName));
+          const favorites = new Set(data.map((f) => f.fullName));
           set({ favorites });
         } catch (error) {
-          alert('加载收藏夹失败: ' + (error instanceof Error ? error.message : String(error)));
+          alert(
+            '加载收藏夹失败: ' +
+              (error instanceof Error ? error.message : String(error)),
+          );
         }
       },
 
@@ -47,7 +53,10 @@ export const useFavoriteStore = create<FavoriteState>()(
             await tauri.removeFavorite(fullName);
           } catch (error) {
             newFavorites.add(fullName);
-            alert('移除收藏失败: ' + (error instanceof Error ? error.message : String(error)));
+            alert(
+              '移除收藏失败: ' +
+                (error instanceof Error ? error.message : String(error)),
+            );
           } finally {
             newPending.delete(fullName);
             set({ pending: newPending });
@@ -61,7 +70,10 @@ export const useFavoriteStore = create<FavoriteState>()(
             await tauri.addFavorite(fullName, JSON.stringify(project || {}));
           } catch (error) {
             newFavorites.delete(fullName);
-            alert('添加收藏失败: ' + (error instanceof Error ? error.message : String(error)));
+            alert(
+              '添加收藏失败: ' +
+                (error instanceof Error ? error.message : String(error)),
+            );
           } finally {
             newPending.delete(fullName);
             set({ pending: newPending });
@@ -76,8 +88,8 @@ export const useFavoriteStore = create<FavoriteState>()(
       name: 'ralph-favorites-v3',
       version: 3,
       partialize: (state) => ({ favorites: Array.from(state.favorites) }),
-    }
-  )
+    },
+  ),
 );
 
 export function useFavoriteSelector() {
@@ -89,6 +101,6 @@ export function useFavoriteSelector() {
       isPending: state.isPending,
       toggleFavorite: state.toggleFavorite,
       loadFavorites: state.loadFavorites,
-    }))
+    })),
   );
 }

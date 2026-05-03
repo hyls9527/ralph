@@ -182,14 +182,13 @@ impl Database {
         })?;
 
         let mut history = Vec::new();
-        for row in rows {
-            if let Ok((query, count, timestamp)) = row {
-                history.push(serde_json::json!({
-                    "query": query,
-                    "resultCount": count,
-                    "timestamp": timestamp,
-                }));
-            }
+        for row in rows.flatten() {
+            let (query, count, timestamp) = row;
+            history.push(serde_json::json!({
+                "query": query,
+                "resultCount": count,
+                "timestamp": timestamp,
+            }));
         }
         Ok(history)
     }

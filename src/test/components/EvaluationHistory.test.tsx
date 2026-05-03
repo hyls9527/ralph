@@ -26,27 +26,29 @@ describe('EvaluationHistory', () => {
   });
 
   it('渲染空状态（初始无数据）', () => {
-    const html = renderToString(
-      <EvaluationHistory repoFullName="test/repo" />
-    );
+    const html = renderToString(<EvaluationHistory repoFullName="test/repo" />);
     expect(html).toContain('暂无评估历史');
   });
 
   it('组件渲染不崩溃', () => {
     expect(() =>
-      renderToString(<EvaluationHistory repoFullName="test/repo" />)
+      renderToString(<EvaluationHistory repoFullName="test/repo" />),
     ).not.toThrow();
   });
 
   it('亮色模式正常渲染', () => {
     expect(() =>
-      renderToString(<EvaluationHistory repoFullName="test/repo" isLight={true} />)
+      renderToString(
+        <EvaluationHistory repoFullName="test/repo" isLight={true} />,
+      ),
     ).not.toThrow();
   });
 
   it('暗色模式正常渲染', () => {
     expect(() =>
-      renderToString(<EvaluationHistory repoFullName="test/repo" isLight={false} />)
+      renderToString(
+        <EvaluationHistory repoFullName="test/repo" isLight={false} />,
+      ),
     ).not.toThrow();
   });
 });

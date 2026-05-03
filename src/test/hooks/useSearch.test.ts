@@ -27,9 +27,15 @@ async function simulateEvaluate(queryText: string) {
     let userMessage = '搜索失败，请稍后重试';
     if (errorMessage.includes('invoke') || errorMessage.includes('undefined')) {
       userMessage = '网络连接异常，请确保在 Tauri 桌面环境中运行';
-    } else if (errorMessage.includes('rate limit') || errorMessage.includes('403')) {
+    } else if (
+      errorMessage.includes('rate limit') ||
+      errorMessage.includes('403')
+    ) {
       userMessage = 'GitHub API 限流，请在设置中配置 Token 后重试';
-    } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+    } else if (
+      errorMessage.includes('fetch') ||
+      errorMessage.includes('network')
+    ) {
       userMessage = '网络连接异常，请检查网络后重试';
     }
     setLoading({ phase: 'error', message: userMessage });
@@ -40,7 +46,10 @@ async function simulateBatchEvaluate(queryText: string, count: number) {
   const { setLoading, setSearchResults, setQuery } = useAppStore.getState();
   if (!queryText.trim()) return;
 
-  setLoading({ phase: 'evaluating', message: `正在批量评定 ${count} 个项目...` });
+  setLoading({
+    phase: 'evaluating',
+    message: `正在批量评定 ${count} 个项目...`,
+  });
 
   try {
     const response = await tauri.batchEvaluate(queryText, count);
@@ -70,29 +79,69 @@ describe('useSearch 逻辑测试', () => {
     });
 
     it('成功搜索并更新结果', async () => {
-      const mockResults: ProjectRecommendation[] = [{
-        repo: { owner: 'test', name: 'repo', fullName: 'test/repo', htmlUrl: '',
-          description: null, stargazersCount: 100, forksCount: 10, openIssuesCount: 5,
-          language: null, createdAt: '', updatedAt: '', pushedAt: '', license: null,
-          size: 0, hasWiki: false, hasIssuesEnabled: false, topics: [] },
-        gateChecks: [], track: 'steady', neglectIndex: 0, dimensions: [],
-        totalScore: 80, grade: 'A', oneLiner: '', evidenceLevel: 'L1',
-        trustBadge: { level: 2, l1: { status: 'recommended', icon: '✓', label: '推荐', color: 'emerald' } },
-        vetoFlags: [], recommendationIndex: 40, confidenceTier: 'tier1-core', decisionTrail: [],
-      }];
+      const mockResults: ProjectRecommendation[] = [
+        {
+          repo: {
+            owner: 'test',
+            name: 'repo',
+            fullName: 'test/repo',
+            htmlUrl: '',
+            description: null,
+            stargazersCount: 100,
+            forksCount: 10,
+            openIssuesCount: 5,
+            language: null,
+            createdAt: '',
+            updatedAt: '',
+            pushedAt: '',
+            license: null,
+            size: 0,
+            hasWiki: false,
+            hasIssuesEnabled: false,
+            topics: [],
+          },
+          gateChecks: [],
+          track: 'steady',
+          neglectIndex: 0,
+          dimensions: [],
+          totalScore: 80,
+          grade: 'A',
+          oneLiner: '',
+          evidenceLevel: 'L1',
+          trustBadge: {
+            level: 2,
+            l1: {
+              status: 'recommended',
+              icon: '✓',
+              label: '推荐',
+              color: 'emerald',
+            },
+          },
+          vetoFlags: [],
+          recommendationIndex: 40,
+          confidenceTier: 'tier1-core',
+          decisionTrail: [],
+        },
+      ];
 
-      mockedTauri.searchAndEvaluate.mockResolvedValueOnce({ results: mockResults });
+      mockedTauri.searchAndEvaluate.mockResolvedValueOnce({
+        results: mockResults,
+      });
 
       await simulateEvaluate('rust logging');
 
-      expect(mockedTauri.searchAndEvaluate).toHaveBeenCalledWith('rust logging');
+      expect(mockedTauri.searchAndEvaluate).toHaveBeenCalledWith(
+        'rust logging',
+      );
       expect(useAppStore.getState().query).toBe('rust logging');
       expect(useAppStore.getState().results).toHaveLength(1);
       expect(useAppStore.getState().loading.phase).toBe('done');
     });
 
     it('搜索失败时设置错误状态 - invoke 错误', async () => {
-      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(new Error('invoke failed'));
+      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(
+        new Error('invoke failed'),
+      );
 
       await simulateEvaluate('rust logging');
 
@@ -102,7 +151,9 @@ describe('useSearch 逻辑测试', () => {
     });
 
     it('API 限流错误提示配置 Token', async () => {
-      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(new Error('rate limit exceeded 403'));
+      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(
+        new Error('rate limit exceeded 403'),
+      );
 
       await simulateEvaluate('rust');
 
@@ -110,7 +161,9 @@ describe('useSearch 逻辑测试', () => {
     });
 
     it('网络错误提示检查网络', async () => {
-      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(new Error('fetch network error'));
+      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(
+        new Error('fetch network error'),
+      );
 
       await simulateEvaluate('rust');
 
@@ -118,7 +171,9 @@ describe('useSearch 逻辑测试', () => {
     });
 
     it('通用错误提示稍后重试', async () => {
-      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(new Error('unknown error'));
+      mockedTauri.searchAndEvaluate.mockRejectedValueOnce(
+        new Error('unknown error'),
+      );
 
       await simulateEvaluate('rust');
 
@@ -127,7 +182,9 @@ describe('useSearch 逻辑测试', () => {
 
     it('搜索前设置 loading 状态', async () => {
       let resolveSearch: (value: unknown) => void;
-      const searchPromise = new Promise(resolve => { resolveSearch = resolve; });
+      const searchPromise = new Promise((resolve) => {
+        resolveSearch = resolve;
+      });
       mockedTauri.searchAndEvaluate.mockReturnValueOnce(searchPromise as any);
 
       const evaluatePromise = simulateEvaluate('rust');
@@ -155,7 +212,9 @@ describe('useSearch 逻辑测试', () => {
     });
 
     it('批量评定失败设置错误状态', async () => {
-      mockedTauri.batchEvaluate.mockRejectedValueOnce(new Error('batch failed'));
+      mockedTauri.batchEvaluate.mockRejectedValueOnce(
+        new Error('batch failed'),
+      );
 
       await simulateBatchEvaluate('rust', 30);
 
@@ -164,7 +223,9 @@ describe('useSearch 逻辑测试', () => {
 
     it('批量评定前设置 evaluating 状态', async () => {
       let resolveBatch: (value: unknown) => void;
-      const batchPromise = new Promise(resolve => { resolveBatch = resolve; });
+      const batchPromise = new Promise((resolve) => {
+        resolveBatch = resolve;
+      });
       mockedTauri.batchEvaluate.mockReturnValueOnce(batchPromise as any);
 
       const evalPromise = simulateBatchEvaluate('rust', 30);

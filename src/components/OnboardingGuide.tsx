@@ -75,10 +75,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   return (
     <>
       {/* Overlay */}
-      <div
-        className="fixed inset-0 bg-black/40 z-[9998]"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/40 z-[9998]" onClick={onClose} />
       {/* Tooltip */}
       <div
         style={style}
@@ -161,7 +158,7 @@ const OnboardingGuide: React.FC<OnboardingGuideProps> = () => {
 
   const handleNext = useCallback(() => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     } else {
       handleClose();
     }

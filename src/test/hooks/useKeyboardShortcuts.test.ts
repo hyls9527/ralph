@@ -35,7 +35,7 @@ describe('useKeyboardShortcuts', () => {
     const removeSpy = vi.spyOn(document, 'removeEventListener');
 
     const { unmount } = renderHook(() =>
-      useKeyboardShortcuts({ onSearchFocus: vi.fn() })
+      useKeyboardShortcuts({ onSearchFocus: vi.fn() }),
     );
 
     expect(addSpy).toHaveBeenCalledWith('keydown', expect.any(Function));

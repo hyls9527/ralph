@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import TelemetryCore, { getTelemetry, initTelemetry } from '../../lib/telemetry';
-import type { TelemetryConfig, ErrorData, FeedbackData } from '../../lib/telemetry';
+import TelemetryCore, {
+  getTelemetry,
+  initTelemetry,
+} from '../../lib/telemetry';
+import type {
+  TelemetryConfig,
+  ErrorData,
+  FeedbackData,
+} from '../../lib/telemetry';
 
 describe('TelemetryCore', () => {
   let telemetry: TelemetryCore;
@@ -36,7 +43,9 @@ describe('TelemetryCore', () => {
   });
 
   it('track 不抛出错误', () => {
-    expect(() => telemetry.track('click', 'ux', { elementId: 'btn' })).not.toThrow();
+    expect(() =>
+      telemetry.track('click', 'ux', { elementId: 'btn' }),
+    ).not.toThrow();
   });
 
   it('trackClick 不抛出错误', () => {
@@ -55,7 +64,9 @@ describe('TelemetryCore', () => {
   });
 
   it('trackFilter 不抛出错误', () => {
-    expect(() => telemetry.trackFilter({ language: 'rust', track: 'neglected' }, 50)).not.toThrow();
+    expect(() =>
+      telemetry.trackFilter({ language: 'rust', track: 'neglected' }, 50),
+    ).not.toThrow();
   });
 
   it('trackError 不抛出错误', () => {

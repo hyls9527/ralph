@@ -4,7 +4,9 @@ import React from 'react';
 import { AccessibleModal } from '../../components/ui/AccessibleModal';
 
 vi.mock('../../lib/focus-trap', () => ({
-  FocusTrap: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  FocusTrap: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 describe('AccessibleModal', () => {
@@ -12,7 +14,7 @@ describe('AccessibleModal', () => {
     const html = renderToString(
       <AccessibleModal open={false} onOpenChange={vi.fn()} title="Test">
         <p>Content</p>
-      </AccessibleModal>
+      </AccessibleModal>,
     );
     expect(html).toBe('');
   });
@@ -21,7 +23,7 @@ describe('AccessibleModal', () => {
     const html = renderToString(
       <AccessibleModal open={true} onOpenChange={vi.fn()} title="Test Title">
         <p>Modal Content</p>
-      </AccessibleModal>
+      </AccessibleModal>,
     );
     expect(html).toContain('Test Title');
     expect(html).toContain('Modal Content');
@@ -38,7 +40,7 @@ describe('AccessibleModal', () => {
         description="A description"
       >
         <p>Content</p>
-      </AccessibleModal>
+      </AccessibleModal>,
     );
     expect(html).toContain('A description');
     expect(html).toContain('aria-describedby');
@@ -48,7 +50,7 @@ describe('AccessibleModal', () => {
     const html = renderToString(
       <AccessibleModal open={true} onOpenChange={vi.fn()} title="Title">
         <p>Content</p>
-      </AccessibleModal>
+      </AccessibleModal>,
     );
     expect(html).not.toContain('aria-describedby');
   });
@@ -57,7 +59,7 @@ describe('AccessibleModal', () => {
     const html = renderToString(
       <AccessibleModal open={true} onOpenChange={vi.fn()} title="Title">
         <p>Content</p>
-      </AccessibleModal>
+      </AccessibleModal>,
     );
     expect(html).toContain('aria-labelledby="modal-title"');
   });

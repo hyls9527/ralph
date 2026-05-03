@@ -3,8 +3,18 @@ import { renderToString } from 'react-dom/server';
 import React from 'react';
 import { FocusTrap } from '../../lib/focus-trap';
 
-function MockFocusTrap({ children, active }: { children: React.ReactNode; active: boolean }) {
-  return active ? <div data-testid="focus-trap">{children}</div> : <div>{children}</div>;
+function MockFocusTrap({
+  children,
+  active,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+}) {
+  return active ? (
+    <div data-testid="focus-trap">{children}</div>
+  ) : (
+    <div>{children}</div>
+  );
 }
 
 vi.mock('focus-trap-react', () => ({
@@ -18,7 +28,7 @@ describe('FocusTrap', () => {
     const html = renderToString(
       <FocusTrap active={true}>
         <button>Click me</button>
-      </FocusTrap>
+      </FocusTrap>,
     );
     expect(html).toContain('Click me');
     expect(html).toContain('data-testid="focus-trap"');
@@ -28,7 +38,7 @@ describe('FocusTrap', () => {
     const html = renderToString(
       <FocusTrap active={false}>
         <button>Click me</button>
-      </FocusTrap>
+      </FocusTrap>,
     );
     expect(html).toContain('Click me');
     expect(html).not.toContain('data-testid="focus-trap"');
@@ -36,12 +46,9 @@ describe('FocusTrap', () => {
 
   it('传递 focusTrapOptions', () => {
     const html = renderToString(
-      <FocusTrap
-        active={true}
-        focusTrapOptions={{ escapeDeactivates: false }}
-      >
+      <FocusTrap active={true} focusTrapOptions={{ escapeDeactivates: false }}>
         <span>Content</span>
-      </FocusTrap>
+      </FocusTrap>,
     );
     expect(html).toContain('Content');
   });

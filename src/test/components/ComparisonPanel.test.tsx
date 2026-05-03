@@ -3,7 +3,9 @@ import { renderToString } from 'react-dom/server';
 import ComparisonPanel from '../../components/ComparisonPanel';
 import type { ProjectRecommendation } from '../../types';
 
-function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
+function makeProject(
+  overrides: Partial<ProjectRecommendation> = {},
+): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -40,7 +42,12 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
     ],
     trustBadge: {
       level: 2,
-      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+      l1: {
+        status: 'recommended',
+        icon: '✓',
+        label: 'Ralph 推荐',
+        color: 'emerald',
+      },
     },
     vetoFlags: [],
     gateChecks: [],
@@ -67,18 +74,22 @@ vi.mock('../../i18n', () => ({
 describe('ComparisonPanel', () => {
   it('单个项目渲染', () => {
     const html = renderToString(
-      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />
+      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />,
     );
     expect(html).toContain('repo');
   });
 
   it('两个项目对比渲染', () => {
     const projects = [
-      makeProject({ repo: { ...makeProject().repo, name: 'proj1', fullName: 'a/proj1' } }),
-      makeProject({ repo: { ...makeProject().repo, name: 'proj2', fullName: 'b/proj2' } }),
+      makeProject({
+        repo: { ...makeProject().repo, name: 'proj1', fullName: 'a/proj1' },
+      }),
+      makeProject({
+        repo: { ...makeProject().repo, name: 'proj2', fullName: 'b/proj2' },
+      }),
     ];
     const html = renderToString(
-      <ComparisonPanel projects={projects} onExit={vi.fn()} />
+      <ComparisonPanel projects={projects} onExit={vi.fn()} />,
     );
     expect(html).toContain('proj1');
     expect(html).toContain('proj2');
@@ -86,25 +97,29 @@ describe('ComparisonPanel', () => {
 
   it('渲染退出按钮', () => {
     const html = renderToString(
-      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />
+      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />,
     );
     expect(html).toContain('<button');
   });
 
   it('两个项目时渲染雷达图 SVG', () => {
     const projects = [
-      makeProject({ repo: { ...makeProject().repo, name: 'p1', fullName: 'a/p1' } }),
-      makeProject({ repo: { ...makeProject().repo, name: 'p2', fullName: 'b/p2' } }),
+      makeProject({
+        repo: { ...makeProject().repo, name: 'p1', fullName: 'a/p1' },
+      }),
+      makeProject({
+        repo: { ...makeProject().repo, name: 'p2', fullName: 'b/p2' },
+      }),
     ];
     const html = renderToString(
-      <ComparisonPanel projects={projects} onExit={vi.fn()} />
+      <ComparisonPanel projects={projects} onExit={vi.fn()} />,
     );
     expect(html).toContain('<svg');
   });
 
   it('渲染维度对比信息', () => {
     const html = renderToString(
-      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />
+      <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />,
     );
     expect(html).toContain('质量');
     expect(html).toContain('维护');
@@ -113,8 +128,8 @@ describe('ComparisonPanel', () => {
   it('组件渲染不崩溃', () => {
     expect(() =>
       renderToString(
-        <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />
-      )
+        <ComparisonPanel projects={[makeProject()]} onExit={vi.fn()} />,
+      ),
     ).not.toThrow();
   });
 });

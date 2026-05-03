@@ -38,7 +38,12 @@ describe('类型定义验证', () => {
         valueDensity: 0.8,
         steadyState: 0.6,
         dimensions: [
-          { dimension: '质量', score: 18, maxScore: 20, subScores: [['测试', 5, 5]] },
+          {
+            dimension: '质量',
+            score: 18,
+            maxScore: 20,
+            subScores: [['测试', 5, 5]],
+          },
         ],
         totalScore: 86,
         grade: 'S',
@@ -46,7 +51,12 @@ describe('类型定义验证', () => {
         evidenceLevel: 'L1',
         trustBadge: {
           level: 2,
-          l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+          l1: {
+            status: 'recommended',
+            icon: '✓',
+            label: 'Ralph 推荐',
+            color: 'emerald',
+          },
         },
         vetoFlags: [],
         recommendationIndex: 129.0,
@@ -62,10 +72,23 @@ describe('类型定义验证', () => {
     it('可选字段可以为 null/undefined', () => {
       const project: ProjectRecommendation = {
         repo: {
-          owner: 'test', name: 'repo', fullName: 'test/repo', htmlUrl: '',
-          description: null, stargazersCount: 0, forksCount: 0, openIssuesCount: 0,
-          language: null, createdAt: '', updatedAt: '', pushedAt: '',
-          license: null, size: 0, hasWiki: false, hasIssuesEnabled: false, topics: [],
+          owner: 'test',
+          name: 'repo',
+          fullName: 'test/repo',
+          htmlUrl: '',
+          description: null,
+          stargazersCount: 0,
+          forksCount: 0,
+          openIssuesCount: 0,
+          language: null,
+          createdAt: '',
+          updatedAt: '',
+          pushedAt: '',
+          license: null,
+          size: 0,
+          hasWiki: false,
+          hasIssuesEnabled: false,
+          topics: [],
         },
         gateChecks: [],
         track: 'steady',
@@ -77,7 +100,12 @@ describe('类型定义验证', () => {
         evidenceLevel: 'L5',
         trustBadge: {
           level: 1,
-          l1: { status: 'not-recommended', icon: '✗', label: '不推荐', color: 'rose' },
+          l1: {
+            status: 'not-recommended',
+            icon: '✗',
+            label: '不推荐',
+            color: 'rose',
+          },
         },
         vetoFlags: [],
         recommendationIndex: 0,
@@ -97,7 +125,12 @@ describe('类型定义验证', () => {
     it('L1 级别徽章', () => {
       const badge: TrustBadge = {
         level: 1,
-        l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+        l1: {
+          status: 'recommended',
+          icon: '✓',
+          label: 'Ralph 推荐',
+          color: 'emerald',
+        },
       };
       expect(badge.level).toBe(1);
       expect(badge.l2).toBeUndefined();
@@ -122,7 +155,11 @@ describe('类型定义验证', () => {
     });
 
     it('所有状态值', () => {
-      const statuses: TrustBadge['l1']['status'][] = ['recommended', 'caution', 'not-recommended'];
+      const statuses: TrustBadge['l1']['status'][] = [
+        'recommended',
+        'caution',
+        'not-recommended',
+      ];
       const colors: TrustBadge['l1']['color'][] = ['emerald', 'amber', 'rose'];
       expect(statuses).toHaveLength(3);
       expect(colors).toHaveLength(3);
@@ -131,7 +168,13 @@ describe('类型定义验证', () => {
 
   describe('LoadingState', () => {
     it('所有阶段', () => {
-      const phases: LoadingState['phase'][] = ['idle', 'searching', 'evaluating', 'done', 'error'];
+      const phases: LoadingState['phase'][] = [
+        'idle',
+        'searching',
+        'evaluating',
+        'done',
+        'error',
+      ];
       expect(phases).toHaveLength(5);
     });
 
@@ -147,13 +190,21 @@ describe('类型定义验证', () => {
 
   describe('DimensionWeights', () => {
     it('默认权重总和为 105', () => {
-      const total = Object.values(defaultDimensionWeights).reduce((a, b) => a + b, 0);
+      const total = Object.values(defaultDimensionWeights).reduce(
+        (a, b) => a + b,
+        0,
+      );
       expect(total).toBe(105);
     });
 
     it('所有维度都有默认权重', () => {
       const keys: (keyof DimensionWeights)[] = [
-        'quality', 'maintenance', 'practical', 'documentation', 'community', 'security',
+        'quality',
+        'maintenance',
+        'practical',
+        'documentation',
+        'community',
+        'security',
       ];
       for (const key of keys) {
         expect(defaultDimensionWeights[key]).toBeGreaterThan(0);
@@ -172,7 +223,11 @@ describe('类型定义验证', () => {
 
   describe('轨道类型', () => {
     it('所有轨道值', () => {
-      const tracks: ProjectRecommendation['track'][] = ['neglected', 'high-star', 'steady'];
+      const tracks: ProjectRecommendation['track'][] = [
+        'neglected',
+        'high-star',
+        'steady',
+      ];
       expect(tracks).toHaveLength(3);
     });
   });
@@ -186,14 +241,24 @@ describe('类型定义验证', () => {
 
   describe('置信层级', () => {
     it('所有置信层级', () => {
-      const tiers: ProjectRecommendation['confidenceTier'][] = ['tier1-core', 'tier2-extended', 'tier3-full'];
+      const tiers: ProjectRecommendation['confidenceTier'][] = [
+        'tier1-core',
+        'tier2-extended',
+        'tier3-full',
+      ];
       expect(tiers).toHaveLength(3);
     });
   });
 
   describe('证据等级', () => {
     it('所有证据等级', () => {
-      const levels: ProjectRecommendation['evidenceLevel'][] = ['L1', 'L2', 'L3', 'L4', 'L5'];
+      const levels: ProjectRecommendation['evidenceLevel'][] = [
+        'L1',
+        'L2',
+        'L3',
+        'L4',
+        'L5',
+      ];
       expect(levels).toHaveLength(5);
     });
   });

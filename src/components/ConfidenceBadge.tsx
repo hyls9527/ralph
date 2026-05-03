@@ -8,7 +8,16 @@ interface ConfidenceBadgeProps {
   showDescription?: boolean;
 }
 
-const LEVEL_CONFIG: Record<EvidenceLevel, { label: string; color: string; bgColor: string; confidence: string; description: string }> = {
+const LEVEL_CONFIG: Record<
+  EvidenceLevel,
+  {
+    label: string;
+    color: string;
+    bgColor: string;
+    confidence: string;
+    description: string;
+  }
+> = {
   L1: {
     label: 'L1',
     color: 'text-emerald-400',
@@ -46,7 +55,11 @@ const LEVEL_CONFIG: Record<EvidenceLevel, { label: string; color: string; bgColo
   },
 };
 
-const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({ level, size = 'md', showDescription = false }) => {
+const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
+  level,
+  size = 'md',
+  showDescription = false,
+}) => {
   const config = LEVEL_CONFIG[level];
   const sizeClasses = {
     sm: 'px-1.5 py-0.5 text-xs',
@@ -56,12 +69,24 @@ const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({ level, size = 'md', s
 
   return (
     <div className="inline-flex flex-col">
-      <div className={`inline-flex items-center gap-1.5 rounded-md border ${config.bgColor} ${sizeClasses[size]} font-medium`}>
-        <svg className={`w-3 h-3 ${config.color}`} fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      <div
+        className={`inline-flex items-center gap-1.5 rounded-md border ${config.bgColor} ${sizeClasses[size]} font-medium`}
+      >
+        <svg
+          className={`w-3 h-3 ${config.color}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          />
         </svg>
         <span className={config.color}>{config.label}</span>
-        <span className="text-gray-400 text-xs opacity-75">{config.confidence}</span>
+        <span className="text-gray-400 text-xs opacity-75">
+          {config.confidence}
+        </span>
       </div>
       {showDescription && (
         <span className="text-gray-500 text-xs mt-1">{config.description}</span>

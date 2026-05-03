@@ -554,7 +554,7 @@ impl GitHubClient {
             .map_err(|e| format!("解析失败: {}", e))?;
 
         if let Some(content) = json.get("content").and_then(|v| v.as_str()) {
-            let cleaned = content.replace('\n', "").replace('\r', "");
+            let cleaned = content.replace(['\n', '\r'], "");
             use base64::Engine;
             let decoded = base64::engine::general_purpose::STANDARD
                 .decode(&cleaned)

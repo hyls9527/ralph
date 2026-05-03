@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { tauri, type SearchResponse, type BadgeInfo } from '../../services/tauri';
+import {
+  tauri,
+  type SearchResponse,
+  type BadgeInfo,
+} from '../../services/tauri';
 
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn(),
@@ -20,22 +24,63 @@ describe('tauri 服务层', () => {
 
       await tauri.searchAndEvaluate('rust logging');
 
-      expect(mockedInvoke).toHaveBeenCalledWith('search_and_evaluate', { query: 'rust logging' });
+      expect(mockedInvoke).toHaveBeenCalledWith('search_and_evaluate', {
+        query: 'rust logging',
+      });
     });
 
     it('返回搜索结果', async () => {
       const mockResponse: SearchResponse = {
-        results: [{
-          repo: { owner: 'test', name: 'repo', fullName: 'test/repo', htmlUrl: '',
-            description: null, stargazersCount: 100, forksCount: 10, openIssuesCount: 5,
-            language: null, createdAt: '', updatedAt: '', pushedAt: '', license: null,
-            size: 0, hasWiki: false, hasIssuesEnabled: false, topics: [] },
-          gateChecks: [], track: 'steady', neglectIndex: 0, dimensions: [],
-          totalScore: 80, grade: 'A', oneLiner: '', evidenceLevel: 'L1',
-          trustBadge: { level: 2, l1: { status: 'recommended', icon: '✓', label: '推荐', color: 'emerald' } },
-          vetoFlags: [], recommendationIndex: 40, confidenceTier: 'tier1-core', decisionTrail: [],
-        }],
-        meta: { queryId: 'q1', totalCandidates: 10, evaluatedCount: 5, dataSource: 'github' },
+        results: [
+          {
+            repo: {
+              owner: 'test',
+              name: 'repo',
+              fullName: 'test/repo',
+              htmlUrl: '',
+              description: null,
+              stargazersCount: 100,
+              forksCount: 10,
+              openIssuesCount: 5,
+              language: null,
+              createdAt: '',
+              updatedAt: '',
+              pushedAt: '',
+              license: null,
+              size: 0,
+              hasWiki: false,
+              hasIssuesEnabled: false,
+              topics: [],
+            },
+            gateChecks: [],
+            track: 'steady',
+            neglectIndex: 0,
+            dimensions: [],
+            totalScore: 80,
+            grade: 'A',
+            oneLiner: '',
+            evidenceLevel: 'L1',
+            trustBadge: {
+              level: 2,
+              l1: {
+                status: 'recommended',
+                icon: '✓',
+                label: '推荐',
+                color: 'emerald',
+              },
+            },
+            vetoFlags: [],
+            recommendationIndex: 40,
+            confidenceTier: 'tier1-core',
+            decisionTrail: [],
+          },
+        ],
+        meta: {
+          queryId: 'q1',
+          totalCandidates: 10,
+          evaluatedCount: 5,
+          dataSource: 'github',
+        },
       };
       mockedInvoke.mockResolvedValueOnce(mockResponse);
 
@@ -51,7 +96,10 @@ describe('tauri 服务层', () => {
 
       await tauri.batchEvaluate('rust', 30);
 
-      expect(mockedInvoke).toHaveBeenCalledWith('batch_evaluate', { query: 'rust', count: 30 });
+      expect(mockedInvoke).toHaveBeenCalledWith('batch_evaluate', {
+        query: 'rust',
+        count: 30,
+      });
     });
   });
 
@@ -85,7 +133,10 @@ describe('tauri 服务层', () => {
 
       await tauri.addFavorite('test/repo', '{}');
 
-      expect(mockedInvoke).toHaveBeenCalledWith('add_favorite', { fullName: 'test/repo', evaluationJson: '{}' });
+      expect(mockedInvoke).toHaveBeenCalledWith('add_favorite', {
+        fullName: 'test/repo',
+        evaluationJson: '{}',
+      });
     });
   });
 
@@ -95,7 +146,9 @@ describe('tauri 服务层', () => {
 
       await tauri.removeFavorite('test/repo');
 
-      expect(mockedInvoke).toHaveBeenCalledWith('remove_favorite', { fullName: 'test/repo' });
+      expect(mockedInvoke).toHaveBeenCalledWith('remove_favorite', {
+        fullName: 'test/repo',
+      });
     });
   });
 
@@ -105,15 +158,15 @@ describe('tauri 服务层', () => {
 
       const result = await tauri.isFavorite('test/repo');
       expect(result).toBe(true);
-      expect(mockedInvoke).toHaveBeenCalledWith('is_favorite', { fullName: 'test/repo' });
+      expect(mockedInvoke).toHaveBeenCalledWith('is_favorite', {
+        fullName: 'test/repo',
+      });
     });
   });
 
   describe('getSearchHistory', () => {
     it('获取搜索历史', async () => {
-      const mockHistory = [
-        { keyword: 'rust', timestamp: 1700000000 },
-      ];
+      const mockHistory = [{ keyword: 'rust', timestamp: 1700000000 }];
       mockedInvoke.mockResolvedValueOnce(mockHistory);
 
       const result = await tauri.getSearchHistory();
@@ -127,7 +180,10 @@ describe('tauri 服务层', () => {
 
       await tauri.logSearch('rust', 10);
 
-      expect(mockedInvoke).toHaveBeenCalledWith('log_search_history', { query: 'rust', count: 10 });
+      expect(mockedInvoke).toHaveBeenCalledWith('log_search_history', {
+        query: 'rust',
+        count: 10,
+      });
     });
   });
 
@@ -150,7 +206,9 @@ describe('tauri 服务层', () => {
 
       const result = await tauri.getEvaluationHistory('test/repo');
       expect(result).toHaveLength(1);
-      expect(mockedInvoke).toHaveBeenCalledWith('get_evaluation_history', { repoFullName: 'test/repo' });
+      expect(mockedInvoke).toHaveBeenCalledWith('get_evaluation_history', {
+        repoFullName: 'test/repo',
+      });
     });
   });
 
@@ -180,7 +238,9 @@ describe('tauri 服务层', () => {
 
       await tauri.saveSettings('ghp_test');
 
-      expect(mockedInvoke).toHaveBeenCalledWith('save_settings', { token: 'ghp_test' });
+      expect(mockedInvoke).toHaveBeenCalledWith('save_settings', {
+        token: 'ghp_test',
+      });
     });
   });
 
@@ -198,7 +258,11 @@ describe('tauri 服务层', () => {
 
       const result = await tauri.generateBadge('S', 90, 'test/repo');
       expect(result.grade).toBe('S');
-      expect(mockedInvoke).toHaveBeenCalledWith('generate_badge', { grade: 'S', score: 90, repoFullName: 'test/repo' });
+      expect(mockedInvoke).toHaveBeenCalledWith('generate_badge', {
+        grade: 'S',
+        score: 90,
+        repoFullName: 'test/repo',
+      });
     });
   });
 
@@ -206,7 +270,9 @@ describe('tauri 服务层', () => {
     it('Tauri invoke 失败时抛出错误', async () => {
       mockedInvoke.mockRejectedValueOnce(new Error('IPC error'));
 
-      await expect(tauri.searchAndEvaluate('test')).rejects.toThrow('IPC error');
+      await expect(tauri.searchAndEvaluate('test')).rejects.toThrow(
+        'IPC error',
+      );
     });
   });
 });

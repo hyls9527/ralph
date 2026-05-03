@@ -24,15 +24,39 @@ const sizeMap: Record<string, number> = {
   lg: 36,
 };
 
-const gradeColorMap: Record<string, { bg: string; text: string; border: string }> = {
-  S: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30' },
-  A: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
-  B: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
-  C: { bg: 'bg-gray-500/20', text: 'text-gray-400', border: 'border-gray-500/30' },
+const gradeColorMap: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  S: {
+    bg: 'bg-yellow-500/20',
+    text: 'text-yellow-400',
+    border: 'border-yellow-500/30',
+  },
+  A: {
+    bg: 'bg-emerald-500/20',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/30',
+  },
+  B: {
+    bg: 'bg-blue-500/20',
+    text: 'text-blue-400',
+    border: 'border-blue-500/30',
+  },
+  C: {
+    bg: 'bg-gray-500/20',
+    text: 'text-gray-400',
+    border: 'border-gray-500/30',
+  },
   X: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30' },
 };
 
-const BadgeDisplay: React.FC<BadgeDisplayProps> = ({ grade, score, repoFullName, size = 'md' }) => {
+const BadgeDisplay: React.FC<BadgeDisplayProps> = ({
+  grade,
+  score,
+  repoFullName,
+  size = 'md',
+}) => {
   const { t } = useI18n();
   const [badge, setBadge] = useState<BadgeInfo | null>(null);
   const [copied, setCopied] = useState(false);
@@ -71,7 +95,9 @@ const BadgeDisplay: React.FC<BadgeDisplayProps> = ({ grade, score, repoFullName,
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
+        <div
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}
+        >
           <span className="font-bold">{grade}</span>
           <span className="opacity-75">{score.toFixed(0)}/105</span>
         </div>

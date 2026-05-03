@@ -14,7 +14,9 @@ vi.mock('../../i18n', () => ({
   },
 }));
 
-function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
+function makeProject(
+  overrides: Partial<ProjectRecommendation> = {},
+): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -44,7 +46,12 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
     dimensions: [],
     trustBadge: {
       level: 2,
-      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+      l1: {
+        status: 'recommended',
+        icon: '✓',
+        label: 'Ralph 推荐',
+        color: 'emerald',
+      },
     },
     vetoFlags: [],
     gateChecks: [],
@@ -63,7 +70,7 @@ describe('VirtualList', () => {
         itemHeight={120}
         containerHeight={600}
         onDetailClick={vi.fn()}
-      />
+      />,
     );
     expect(html).toContain('overflow-y-auto');
   });
@@ -75,7 +82,7 @@ describe('VirtualList', () => {
         itemHeight={120}
         containerHeight={600}
         onDetailClick={vi.fn()}
-      />
+      />,
     );
     expect(html).toContain('test/repo');
   });
@@ -92,7 +99,7 @@ describe('VirtualList', () => {
         itemHeight={120}
         containerHeight={600}
         onDetailClick={vi.fn()}
-      />
+      />,
     );
     expect(html).toContain('a/repo1');
     expect(html).toContain('b/repo2');
@@ -106,7 +113,7 @@ describe('VirtualList', () => {
         itemHeight={120}
         containerHeight={400}
         onDetailClick={vi.fn()}
-      />
+      />,
     );
     expect(html).toContain('height:400px');
   });
@@ -119,8 +126,8 @@ describe('VirtualList', () => {
           itemHeight={120}
           containerHeight={600}
           onDetailClick={vi.fn()}
-        />
-      )
+        />,
+      ),
     ).not.toThrow();
   });
 });

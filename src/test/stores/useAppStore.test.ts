@@ -31,7 +31,17 @@ const mockProject: ProjectRecommendation = {
   valueDensity: 0.8,
   steadyState: 0.6,
   dimensions: [
-    { dimension: '质量', score: 18, maxScore: 20, subScores: [['项目结构', 5, 5], ['测试覆盖', 4, 5], ['CI/CD', 4, 5], ['代码规范', 5, 5]] },
+    {
+      dimension: '质量',
+      score: 18,
+      maxScore: 20,
+      subScores: [
+        ['项目结构', 5, 5],
+        ['测试覆盖', 4, 5],
+        ['CI/CD', 4, 5],
+        ['代码规范', 5, 5],
+      ],
+    },
     { dimension: '维护', score: 12, maxScore: 15, subScores: [] },
     { dimension: '实用', score: 20, maxScore: 25, subScores: [] },
     { dimension: '文档', score: 12, maxScore: 15, subScores: [] },
@@ -44,11 +54,20 @@ const mockProject: ProjectRecommendation = {
   evidenceLevel: 'L1',
   trustBadge: {
     level: 2,
-    l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+    l1: {
+      status: 'recommended',
+      icon: '✓',
+      label: 'Ralph 推荐',
+      color: 'emerald',
+    },
     l2: {
       gateChecks: [],
       evidenceSummary: '评分 86/105 | 证据等级 L1',
-      keyMetrics: { qualityScore: 18, maintenanceScore: 12, securityStatus: 'passed' },
+      keyMetrics: {
+        qualityScore: 18,
+        maintenanceScore: 12,
+        securityStatus: 'passed',
+      },
     },
   },
   vetoFlags: [],
@@ -91,7 +110,9 @@ describe('useAppStore', () => {
   });
 
   it('setSearchResults 更新结果并设置 loading 为 done', () => {
-    useAppStore.getState().setLoading({ phase: 'searching', message: '搜索中...' });
+    useAppStore
+      .getState()
+      .setLoading({ phase: 'searching', message: '搜索中...' });
     useAppStore.getState().setSearchResults([mockProject]);
 
     const state = useAppStore.getState();
@@ -110,7 +131,11 @@ describe('useAppStore', () => {
   it('setSearchResults 处理大量结果', () => {
     const manyResults = Array.from({ length: 100 }, (_, i) => ({
       ...mockProject,
-      repo: { ...mockProject.repo, fullName: `test/repo-${i}`, stargazersCount: i * 100 },
+      repo: {
+        ...mockProject.repo,
+        fullName: `test/repo-${i}`,
+        stargazersCount: i * 100,
+      },
       totalScore: 50 + (i % 50),
     }));
     useAppStore.getState().setSearchResults(manyResults);
@@ -118,13 +143,17 @@ describe('useAppStore', () => {
   });
 
   it('setLoading 更新加载状态', () => {
-    useAppStore.getState().setLoading({ phase: 'searching', message: '正在搜索...' });
+    useAppStore
+      .getState()
+      .setLoading({ phase: 'searching', message: '正在搜索...' });
     expect(useAppStore.getState().loading.phase).toBe('searching');
     expect(useAppStore.getState().loading.message).toBe('正在搜索...');
   });
 
   it('setLoading 部分更新保留其他字段', () => {
-    useAppStore.getState().setLoading({ phase: 'evaluating', message: '评估中...' });
+    useAppStore
+      .getState()
+      .setLoading({ phase: 'evaluating', message: '评估中...' });
     useAppStore.getState().setLoading({ message: '更新消息' });
     const state = useAppStore.getState();
     expect(state.loading.phase).toBe('evaluating');
@@ -132,7 +161,9 @@ describe('useAppStore', () => {
   });
 
   it('setLoading 所有阶段转换', () => {
-    const phases: Array<['idle' | 'searching' | 'evaluating' | 'done' | 'error', string]> = [
+    const phases: Array<
+      ['idle' | 'searching' | 'evaluating' | 'done' | 'error', string]
+    > = [
       ['searching', '正在搜索 GitHub 项目...'],
       ['evaluating', '正在评估项目...'],
       ['done', ''],
@@ -160,7 +191,9 @@ describe('useAppStore', () => {
 
   it('连续操作状态一致性', () => {
     useAppStore.getState().setQuery('rust');
-    useAppStore.getState().setLoading({ phase: 'searching', message: '搜索中' });
+    useAppStore
+      .getState()
+      .setLoading({ phase: 'searching', message: '搜索中' });
     useAppStore.getState().setSearchResults([mockProject]);
 
     const state = useAppStore.getState();

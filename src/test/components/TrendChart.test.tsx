@@ -3,7 +3,9 @@ import { renderToString } from 'react-dom/server';
 import TrendChart from '../../components/TrendChart';
 import type { ProjectRecommendation } from '../../types';
 
-function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
+function makeProject(
+  overrides: Partial<ProjectRecommendation> = {},
+): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -33,7 +35,12 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
     dimensions: [],
     trustBadge: {
       level: 2,
-      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
+      l1: {
+        status: 'recommended',
+        icon: '✓',
+        label: 'Ralph 推荐',
+        color: 'emerald',
+      },
     },
     vetoFlags: [],
     gateChecks: [],
@@ -54,7 +61,7 @@ describe('TrendChart', () => {
 
   it('单个 S 级项目渲染', () => {
     const html = renderToString(
-      <TrendChart projects={[makeProject({ totalScore: 90, grade: 'S' })]} />
+      <TrendChart projects={[makeProject({ totalScore: 90, grade: 'S' })]} />,
     );
     expect(html).toContain('S 级');
     expect(html).toContain('A 级');
@@ -65,10 +72,26 @@ describe('TrendChart', () => {
 
   it('多个不同等级项目渲染', () => {
     const projects = [
-      makeProject({ totalScore: 90, grade: 'S', repo: { ...makeProject().repo, fullName: 'a/s' } }),
-      makeProject({ totalScore: 80, grade: 'A', repo: { ...makeProject().repo, fullName: 'b/a' } }),
-      makeProject({ totalScore: 75, grade: 'B', repo: { ...makeProject().repo, fullName: 'c/b' } }),
-      makeProject({ totalScore: 70, grade: 'X', repo: { ...makeProject().repo, fullName: 'd/x' } }),
+      makeProject({
+        totalScore: 90,
+        grade: 'S',
+        repo: { ...makeProject().repo, fullName: 'a/s' },
+      }),
+      makeProject({
+        totalScore: 80,
+        grade: 'A',
+        repo: { ...makeProject().repo, fullName: 'b/a' },
+      }),
+      makeProject({
+        totalScore: 75,
+        grade: 'B',
+        repo: { ...makeProject().repo, fullName: 'c/b' },
+      }),
+      makeProject({
+        totalScore: 70,
+        grade: 'X',
+        repo: { ...makeProject().repo, fullName: 'd/x' },
+      }),
     ];
     const html = renderToString(<TrendChart projects={projects} />);
     expect(html).toContain('轨道分布');
@@ -76,18 +99,25 @@ describe('TrendChart', () => {
   });
 
   it('渲染 SVG 柱状图', () => {
-    const html = renderToString(
-      <TrendChart projects={[makeProject()]} />
-    );
+    const html = renderToString(<TrendChart projects={[makeProject()]} />);
     expect(html).toContain('<svg');
     expect(html).toContain('<rect');
   });
 
   it('不同轨道项目渲染', () => {
     const projects = [
-      makeProject({ track: 'neglected', repo: { ...makeProject().repo, fullName: 'a/n' } }),
-      makeProject({ track: 'high-star', repo: { ...makeProject().repo, fullName: 'b/h' } }),
-      makeProject({ track: 'steady', repo: { ...makeProject().repo, fullName: 'c/s' } }),
+      makeProject({
+        track: 'neglected',
+        repo: { ...makeProject().repo, fullName: 'a/n' },
+      }),
+      makeProject({
+        track: 'high-star',
+        repo: { ...makeProject().repo, fullName: 'b/h' },
+      }),
+      makeProject({
+        track: 'steady',
+        repo: { ...makeProject().repo, fullName: 'c/s' },
+      }),
     ];
     const html = renderToString(<TrendChart projects={projects} />);
     expect(html).toContain('被忽视');
@@ -97,8 +127,14 @@ describe('TrendChart', () => {
 
   it('计算并显示平均分', () => {
     const projects = [
-      makeProject({ totalScore: 100, repo: { ...makeProject().repo, fullName: 'a/100' } }),
-      makeProject({ totalScore: 80, repo: { ...makeProject().repo, fullName: 'b/80' } }),
+      makeProject({
+        totalScore: 100,
+        repo: { ...makeProject().repo, fullName: 'a/100' },
+      }),
+      makeProject({
+        totalScore: 80,
+        repo: { ...makeProject().repo, fullName: 'b/80' },
+      }),
     ];
     const html = renderToString(<TrendChart projects={projects} />);
     expect(html).toContain('90.0');

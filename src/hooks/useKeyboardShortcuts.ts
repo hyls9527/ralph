@@ -107,13 +107,23 @@ export function useKeyboardShortcuts(options?: KeyboardShortcutsOptions) {
         return;
       }
 
-      if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && !isInput && totalPages > 1 && onNextPage) {
+      if (
+        (e.key === 'ArrowRight' || e.key === 'ArrowDown') &&
+        !isInput &&
+        totalPages > 1 &&
+        onNextPage
+      ) {
         e.preventDefault();
         onNextPage();
         return;
       }
 
-      if ((e.key === 'ArrowLeft' || e.key === 'ArrowUp') && !isInput && totalPages > 1 && onPrevPage) {
+      if (
+        (e.key === 'ArrowLeft' || e.key === 'ArrowUp') &&
+        !isInput &&
+        totalPages > 1 &&
+        onPrevPage
+      ) {
         e.preventDefault();
         onPrevPage();
         return;
@@ -128,10 +138,20 @@ export function useKeyboardShortcuts(options?: KeyboardShortcutsOptions) {
 
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [onSearchFocus, onNextPage, onPrevPage, onClosePopup, onToggleTheme, totalPages]);
+  }, [
+    onSearchFocus,
+    onNextPage,
+    onPrevPage,
+    onClosePopup,
+    onToggleTheme,
+    totalPages,
+  ]);
 }
 
-export function getShortcutsForHelp(): Omit<ShortcutConfig, 'action' | 'when'>[] {
+export function getShortcutsForHelp(): Omit<
+  ShortcutConfig,
+  'action' | 'when'
+>[] {
   return SHORTCUTS.map(({ action, when, ...rest }) => rest);
 }
 
@@ -139,14 +159,18 @@ function matchShortcut(event: KeyboardEvent, config: ShortcutConfig): boolean {
   const { key, modifiers = [] } = config;
 
   if (event.key.toLowerCase() !== key.toLowerCase()) return false;
-  if (modifiers.includes('ctrl') !== (event.ctrlKey || event.metaKey)) return false;
+  if (modifiers.includes('ctrl') !== (event.ctrlKey || event.metaKey))
+    return false;
   if (modifiers.includes('shift') !== event.shiftKey) return false;
   if (modifiers.includes('alt') !== event.altKey) return false;
 
   return true;
 }
 
-function checkContext(target: EventTarget | null, context: ShortcutConfig['context']): boolean {
+function checkContext(
+  target: EventTarget | null,
+  context: ShortcutConfig['context'],
+): boolean {
   if (context === 'global') return true;
 
   const element = target as HTMLElement;

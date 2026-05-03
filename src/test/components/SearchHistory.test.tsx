@@ -31,35 +31,35 @@ vi.mock('../../i18n', () => ({
 describe('SearchHistory', () => {
   it('初始渲染切换按钮', () => {
     const html = renderToString(
-      <SearchHistory onReSearch={vi.fn()} isLight={false} />
+      <SearchHistory onReSearch={vi.fn()} isLight={false} />,
     );
     expect(html).toContain('搜索历史');
   });
 
   it('暗色模式使用深色样式', () => {
     const html = renderToString(
-      <SearchHistory onReSearch={vi.fn()} isLight={false} />
+      <SearchHistory onReSearch={vi.fn()} isLight={false} />,
     );
     expect(html).toContain('border-gray-700');
   });
 
   it('亮色模式使用浅色样式', () => {
     const html = renderToString(
-      <SearchHistory onReSearch={vi.fn()} isLight={true} />
+      <SearchHistory onReSearch={vi.fn()} isLight={true} />,
     );
     expect(html).toContain('border-gray-300');
   });
 
   it('初始不显示历史面板', () => {
     const html = renderToString(
-      <SearchHistory onReSearch={vi.fn()} isLight={false} />
+      <SearchHistory onReSearch={vi.fn()} isLight={false} />,
     );
     expect(html).not.toContain('animate-fade-in');
   });
 
   it('按钮可点击', () => {
     const html = renderToString(
-      <SearchHistory onReSearch={vi.fn()} isLight={false} />
+      <SearchHistory onReSearch={vi.fn()} isLight={false} />,
     );
     expect(html).toContain('<button');
   });
