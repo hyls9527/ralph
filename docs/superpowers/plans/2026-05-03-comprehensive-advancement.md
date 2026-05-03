@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 Ralph 打造成行业顶尖的 GitHub 项目发现与评估工具，实现功能完备、质量卓越、用户体验一流的全栈应用。
+**Goal:** 将 Ralph 打造成高质量的 GitHub 项目发现与评估工具，实现功能完备、质量可靠、用户体验良好的全栈应用。
 
 **Architecture:** 采用分层渐进式开发方法论，以 Tauri 2.0 + React 19 + Rust 为技术底座，通过四个层次的递进式开发，实现从前端交互优化到后端评估引擎增强的全面覆盖。
 
@@ -636,12 +636,12 @@ Week 4-5: Layer 4 (可访问性) - 与 Layer 3 后半段并行
 
 | 指标 | 当前 | 目标 |
 |------|------|------|
-| Rust 测试覆盖率 | ~60% | 80%+ |
-| TypeScript 测试覆盖率 | ~70% | 80%+ |
-| Lighthouse 性能分 | ~85 | 95+ |
-| WCAG 合规率 | ~70% | 100% |
-| i18n 覆盖率 | ~90% | 100% |
-| 用户满意度 | - | 4.5/5 |
+| Rust 测试覆盖率 | 待测量 | 80%+ |
+| TypeScript 测试覆盖率 | 待测量 | 80%+ |
+| Lighthouse 性能分 | 待测量 | 95+ |
+| WCAG 合规率 | 待测量 | 100% |
+| i18n 覆盖率 | 待测量 | 100% |
+| 用户满意度 | 待收集 | 4.5/5 |
 
 ---
 
