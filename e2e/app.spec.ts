@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Ralph E2E 测试 - Tauri dev 启动验证', () => {
   
   test.beforeEach(async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(500);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
   });
 
   test('应用成功启动并渲染首页', async ({ page }) => {

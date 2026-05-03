@@ -3,9 +3,7 @@ import { renderToString } from 'react-dom/server';
 import ReportShare from '../../components/ReportShare';
 import type { ProjectRecommendation } from '../../types';
 
-function makeProject(
-  overrides: Partial<ProjectRecommendation> = {},
-): ProjectRecommendation {
+function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -35,15 +33,7 @@ function makeProject(
     valueDensity: 0.75,
     steadyState: 0.55,
     dimensions: [
-      {
-        dimension: '质量',
-        score: 18,
-        maxScore: 20,
-        subScores: [
-          ['测试', 5, 5],
-          ['覆盖率', 4, 5],
-        ],
-      },
+      { dimension: '质量', score: 18, maxScore: 20, subScores: [['测试', 5, 5], ['覆盖率', 4, 5]] },
       { dimension: '维护', score: 12, maxScore: 15, subScores: [] },
       { dimension: '实用', score: 22, maxScore: 25, subScores: [] },
       { dimension: '文档', score: 10, maxScore: 15, subScores: [] },
@@ -56,12 +46,7 @@ function makeProject(
     evidenceLevel: 'L1',
     trustBadge: {
       level: 2,
-      l1: {
-        status: 'recommended',
-        icon: '✓',
-        label: 'Ralph 推荐',
-        color: 'emerald',
-      },
+      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
       l2: {
         gateChecks: [],
         evidenceSummary: '高质量项目',
@@ -104,14 +89,14 @@ describe('ReportShare', () => {
 
   it('neglected 轨道项目正常渲染', () => {
     const html = renderToString(
-      <ReportShare project={makeProject({ track: 'neglected' })} />,
+      <ReportShare project={makeProject({ track: 'neglected' })} />
     );
     expect(html).toContain('生成评估报告');
   });
 
   it('steady 轨道项目正常渲染', () => {
     const html = renderToString(
-      <ReportShare project={makeProject({ track: 'steady' })} />,
+      <ReportShare project={makeProject({ track: 'steady' })} />
     );
     expect(html).toContain('生成评估报告');
   });
@@ -125,14 +110,14 @@ describe('ReportShare', () => {
 
   it('有否决标记项目正常渲染', () => {
     const html = renderToString(
-      <ReportShare project={makeProject({ vetoFlags: ['存档项目'] })} />,
+      <ReportShare project={makeProject({ vetoFlags: ['存档项目'] })} />
     );
     expect(html).toContain('生成评估报告');
   });
 
   it('无 trustBadge 项目正常渲染', () => {
     const html = renderToString(
-      <ReportShare project={makeProject({ trustBadge: undefined })} />,
+      <ReportShare project={makeProject({ trustBadge: undefined })} />
     );
     expect(html).toContain('生成评估报告');
   });

@@ -73,13 +73,11 @@ const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
         <td style="padding:8px;border:1px solid #e5e7eb;text-align:center;font-size:11px;">
           ${
             p.dimensions
-              ?.map(
-                (d) => `${escapeHtml(d.dimension)}:${d.score}/${d.maxScore}`,
-              )
+              ?.map((d) => `${escapeHtml(d.dimension)}:${d.score}/${d.maxScore}`)
               .join('<br>') || ''
           }
         </td>
-      </tr>`,
+      </tr>`
       )
       .join('');
 
@@ -87,15 +85,11 @@ const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
     const escapedQuery = escapeHtml(query);
     const now = new Date().toLocaleString('zh-CN');
     const totalProjects = projects.length;
-    const sCount = projects.filter((p) => p.grade === 'S').length;
-    const aCount = projects.filter((p) => p.grade === 'A').length;
-    const bCount = projects.filter((p) => p.grade === 'B').length;
-    const avgScore = (
-      projects.reduce((s, p) => s + p.totalScore, 0) / (projects.length || 1)
-    ).toFixed(1);
-    const maxRecommendation = projects
-      .reduce((m, p) => Math.max(m, p.recommendationIndex), 0)
-      .toFixed(2);
+    const sCount = projects.filter(p => p.grade === 'S').length;
+    const aCount = projects.filter(p => p.grade === 'A').length;
+    const bCount = projects.filter(p => p.grade === 'B').length;
+    const avgScore = (projects.reduce((s, p) => s + p.totalScore, 0) / (projects.length || 1)).toFixed(1);
+    const maxRecommendation = projects.reduce((m, p) => Math.max(m, p.recommendationIndex), 0).toFixed(2);
 
     const html = `
 <!DOCTYPE html>
@@ -172,18 +166,8 @@ const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
       className="text-xs px-2.5 py-1 rounded border border-gray-700 text-gray-400 hover:text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-1"
       title={t('exportPdfTooltip')}
     >
-      <svg
-        className="w-3.5 h-3.5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-        />
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
       {t('pdfReport')}
     </button>

@@ -3,9 +3,7 @@ import { renderToString } from 'react-dom/server';
 import ProjectDetail from '../../components/ProjectDetail';
 import type { ProjectRecommendation } from '../../types';
 
-function makeProject(
-  overrides: Partial<ProjectRecommendation> = {},
-): ProjectRecommendation {
+function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -42,12 +40,7 @@ function makeProject(
     ],
     trustBadge: {
       level: 2,
-      l1: {
-        status: 'recommended',
-        icon: '✓',
-        label: 'Ralph 推荐',
-        color: 'emerald',
-      },
+      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
     },
     vetoFlags: [],
     gateChecks: [],
@@ -81,68 +74,63 @@ vi.mock('../../services/tauri', () => ({
 describe('ProjectDetail', () => {
   it('渲染项目名称', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('test/repo');
   });
 
   it('渲染项目描述', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('A test repo');
   });
 
   it('渲染关闭按钮', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('<button');
   });
 
   it('渲染 SVG 图标', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('<svg');
   });
 
   it('渲染评分信息', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('85');
   });
 
   it('渲染等级信息', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject({ grade: 'S' })} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject({ grade: 'S' })} onClose={vi.fn()} />
     );
     expect(html).toContain('S');
   });
 
   it('渲染轨道信息', () => {
     const html = renderToString(
-      <ProjectDetail
-        project={makeProject({ track: 'neglected' })}
-        onClose={vi.fn()}
-      />,
+      <ProjectDetail project={makeProject({ track: 'neglected' })} onClose={vi.fn()} />
     );
     expect(html).toContain('被忽视');
   });
 
   it('渲染评估历史区域', () => {
     const html = renderToString(
-      <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
+      <ProjectDetail project={makeProject()} onClose={vi.fn()} />
     );
     expect(html).toContain('historyTrend');
   });
 
   it('组件渲染不崩溃', () => {
     expect(() =>
-      renderToString(
-        <ProjectDetail project={makeProject()} onClose={vi.fn()} />,
-      ),
+      renderToString(<ProjectDetail project={makeProject()} onClose={vi.fn()} />)
     ).not.toThrow();
   });
 });

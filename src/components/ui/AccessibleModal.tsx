@@ -63,18 +63,12 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
           className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2
-            id="modal-title"
-            className="text-lg font-semibold mb-2 text-gray-900 dark:text-white"
-          >
+          <h2 id="modal-title" className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
             {title}
           </h2>
 
           {description && (
-            <p
-              id="modal-description"
-              className="text-sm text-gray-600 dark:text-gray-400 mb-4"
-            >
+            <p id="modal-description" className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               {description}
             </p>
           )}

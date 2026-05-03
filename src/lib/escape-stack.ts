@@ -16,7 +16,7 @@ class EscapeStackManager {
   }
 
   unregister(id: OverlayId): void {
-    this.stack = this.stack.filter((item) => item.id !== id);
+    this.stack = this.stack.filter(item => item.id !== id);
   }
 
   hasItems(): boolean {

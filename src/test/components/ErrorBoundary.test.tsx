@@ -20,7 +20,7 @@ describe('ErrorBoundary', () => {
     const html = renderToString(
       <ErrorBoundary>
         <div>正常内容</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(html).toContain('正常内容');
   });
@@ -30,7 +30,7 @@ describe('ErrorBoundary', () => {
       <ErrorBoundary>
         <span>子组件1</span>
         <span>子组件2</span>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(html).toContain('子组件1');
     expect(html).toContain('子组件2');
@@ -42,7 +42,7 @@ describe('ErrorBoundary', () => {
         <div>
           <p>嵌套内容</p>
         </div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(html).toContain('嵌套内容');
   });
@@ -51,7 +51,7 @@ describe('ErrorBoundary', () => {
     const html = renderToString(
       <ErrorBoundary>
         <div>无 fallback</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(html).toContain('无 fallback');
   });
@@ -60,14 +60,18 @@ describe('ErrorBoundary', () => {
     const html = renderToString(
       <ErrorBoundary fallback={<div>备用</div>}>
         <div>正常</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
     expect(html).toContain('正常');
     expect(html).not.toContain('备用');
   });
 
   it('渲染空子组件', () => {
-    const html = renderToString(<ErrorBoundary>{null}</ErrorBoundary>);
+    const html = renderToString(
+      <ErrorBoundary>
+        {null}
+      </ErrorBoundary>
+    );
     expect(html).toBe('');
   });
 });

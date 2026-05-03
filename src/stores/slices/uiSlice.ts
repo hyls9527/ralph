@@ -45,24 +45,17 @@ export const useUiStore = create<UIState>()(
       setShowHelp: (showHelp) => set({ showHelp }),
       setCompareMode: (compareMode) => set({ compareMode }),
       addSelectedProject: (fullName) =>
-        set((state: UIState) => ({
-          selectedProjects: [...state.selectedProjects, fullName],
-        })),
+        set((state: UIState) => ({ selectedProjects: [...state.selectedProjects, fullName] })),
       removeSelectedProject: (fullName) =>
-        set((state: UIState) => ({
-          selectedProjects: state.selectedProjects.filter(
-            (p) => p !== fullName,
-          ),
-        })),
+        set((state: UIState) => ({ selectedProjects: state.selectedProjects.filter(p => p !== fullName) })),
       clearSelectedProjects: () => set({ selectedProjects: [] }),
       setCurrentPage: (currentPage) => set({ currentPage }),
       setTheme: (theme) => set({ theme }),
-      setSelectedDetailProject: (selectedDetailProject) =>
-        set({ selectedDetailProject }),
+      setSelectedDetailProject: (selectedDetailProject) => set({ selectedDetailProject }),
     }),
     {
       name: 'ralph-ui-v3',
       version: 3,
-    },
-  ),
+    }
+  )
 );

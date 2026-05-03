@@ -4,40 +4,15 @@ import type { ProjectRecommendation } from '../../types';
 
 const mockProject: ProjectRecommendation = {
   repo: {
-    owner: 'test',
-    name: 'repo',
-    fullName: 'test/repo',
-    htmlUrl: '',
-    description: null,
-    stargazersCount: 100,
-    forksCount: 10,
-    openIssuesCount: 5,
-    language: null,
-    createdAt: '',
-    updatedAt: '',
-    pushedAt: '',
-    license: null,
-    size: 0,
-    hasWiki: false,
-    hasIssuesEnabled: false,
-    topics: [],
+    owner: 'test', name: 'repo', fullName: 'test/repo', htmlUrl: '',
+    description: null, stargazersCount: 100, forksCount: 10, openIssuesCount: 5,
+    language: null, createdAt: '', updatedAt: '', pushedAt: '', license: null,
+    size: 0, hasWiki: false, hasIssuesEnabled: false, topics: [],
   },
-  gateChecks: [],
-  track: 'steady',
-  neglectIndex: 0,
-  dimensions: [],
-  totalScore: 80,
-  grade: 'A',
-  oneLiner: '',
-  evidenceLevel: 'L1',
-  trustBadge: {
-    level: 2,
-    l1: { status: 'recommended', icon: '✓', label: '推荐', color: 'emerald' },
-  },
-  vetoFlags: [],
-  recommendationIndex: 40,
-  confidenceTier: 'tier1-core',
-  decisionTrail: [],
+  gateChecks: [], track: 'steady', neglectIndex: 0, dimensions: [],
+  totalScore: 80, grade: 'A', oneLiner: '', evidenceLevel: 'L1',
+  trustBadge: { level: 2, l1: { status: 'recommended', icon: '✓', label: '推荐', color: 'emerald' } },
+  vetoFlags: [], recommendationIndex: 40, confidenceTier: 'tier1-core', decisionTrail: [],
 };
 
 describe('useUiStore', () => {
@@ -104,11 +79,7 @@ describe('useUiStore', () => {
     useUiStore.getState().addSelectedProject('test/repo1');
     useUiStore.getState().addSelectedProject('test/repo2');
     useUiStore.getState().addSelectedProject('test/repo3');
-    expect(useUiStore.getState().selectedProjects).toEqual([
-      'test/repo1',
-      'test/repo2',
-      'test/repo3',
-    ]);
+    expect(useUiStore.getState().selectedProjects).toEqual(['test/repo1', 'test/repo2', 'test/repo3']);
   });
 
   it('removeSelectedProject 移除选中项目', () => {

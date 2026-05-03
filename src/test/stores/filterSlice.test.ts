@@ -22,9 +22,9 @@ describe('useFilterStore', () => {
   });
 
   it('setSortBy 所有排序字段', () => {
-    const sortOptions: Array<
-      'recommendationIndex' | 'score' | 'stars' | 'updatedAt'
-    > = ['recommendationIndex', 'score', 'stars', 'updatedAt'];
+    const sortOptions: Array<'recommendationIndex' | 'score' | 'stars' | 'updatedAt'> = [
+      'recommendationIndex', 'score', 'stars', 'updatedAt',
+    ];
     for (const sortBy of sortOptions) {
       useFilterStore.getState().setSortBy(sortBy);
       expect(useFilterStore.getState().sortBy).toBe(sortBy);
@@ -39,12 +39,7 @@ describe('useFilterStore', () => {
   });
 
   it('setTrackFilter 更新轨道过滤', () => {
-    const tracks: Array<'all' | 'neglected' | 'high-star' | 'steady'> = [
-      'all',
-      'neglected',
-      'high-star',
-      'steady',
-    ];
+    const tracks: Array<'all' | 'neglected' | 'high-star' | 'steady'> = ['all', 'neglected', 'high-star', 'steady'];
     for (const track of tracks) {
       useFilterStore.getState().setTrackFilter(track);
       expect(useFilterStore.getState().trackFilter).toBe(track);

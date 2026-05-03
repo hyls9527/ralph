@@ -49,16 +49,9 @@ const evidenceLabels: Record<string, string> = {
 };
 
 const languageColors = [
-  'bg-violet-500',
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-rose-500',
-  'bg-cyan-500',
-  'bg-orange-500',
-  'bg-pink-500',
-  'bg-teal-500',
-  'bg-indigo-500',
+  'bg-violet-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500',
+  'bg-rose-500', 'bg-cyan-500', 'bg-orange-500', 'bg-pink-500',
+  'bg-teal-500', 'bg-indigo-500',
 ];
 
 const StatsDashboard: React.FC = () => {
@@ -109,74 +102,38 @@ const StatsDashboard: React.FC = () => {
   if (!stats || stats.total === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
-        <svg
-          className="w-12 h-12 mx-auto mb-3 opacity-30"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
+        <svg className="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <p>{t('noStatsData')}</p>
       </div>
     );
   }
 
-  const maxGradeCount = Math.max(...stats.byGrade.map((g) => g.count), 1);
-  const maxTrackCount = Math.max(...stats.byTrack.map((t) => t.count), 1);
-  const maxBucketCount = Math.max(
-    ...(stats.scoreDistribution?.map((b) => b.count) || [1]),
-    1,
-  );
-  const maxLanguageCount = Math.max(
-    ...(stats.byLanguage?.map((l) => l.count) || [1]),
-    1,
-  );
-  const maxEvidenceCount = Math.max(
-    ...(stats.byEvidence?.map((e) => e.count) || [1]),
-    1,
-  );
-  const passRate =
-    stats.total > 0
-      ? (
-          (stats.byGrade
-            .filter((g) => ['S', 'A', 'B'].includes(g.grade))
-            .reduce((s, g) => s + g.count, 0) /
-            stats.total) *
-          100
-        ).toFixed(1)
-      : '0';
+  const maxGradeCount = Math.max(...stats.byGrade.map(g => g.count), 1);
+  const maxTrackCount = Math.max(...stats.byTrack.map(t => t.count), 1);
+  const maxBucketCount = Math.max(...(stats.scoreDistribution?.map(b => b.count) || [1]), 1);
+  const maxLanguageCount = Math.max(...(stats.byLanguage?.map(l => l.count) || [1]), 1);
+  const maxEvidenceCount = Math.max(...(stats.byEvidence?.map(e => e.count) || [1]), 1);
+  const passRate = stats.total > 0 ? ((stats.byGrade.filter(g => ['S', 'A', 'B'].includes(g.grade)).reduce((s, g) => s + g.count, 0)) / stats.total * 100).toFixed(1) : '0';
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
           <div className="text-2xl font-bold text-white">{stats.total}</div>
-          <div className="text-xs text-gray-400 mt-1">
-            {t('totalEvaluated')}
-          </div>
+          <div className="text-xs text-gray-400 mt-1">{t('totalEvaluated')}</div>
         </div>
         <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
-          <div className="text-2xl font-bold text-violet-400">
-            {stats.avgScore}
-          </div>
+          <div className="text-2xl font-bold text-violet-400">{stats.avgScore}</div>
           <div className="text-xs text-gray-400 mt-1">{t('avgScore')}</div>
         </div>
         <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
-          <div className="text-2xl font-bold text-amber-400">
-            {stats.topScore}
-          </div>
+          <div className="text-2xl font-bold text-amber-400">{stats.topScore}</div>
           <div className="text-xs text-gray-400 mt-1">{t('topScore')}</div>
         </div>
         <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
-          <div className="text-2xl font-bold text-emerald-400">
-            {stats.recent7d}
-          </div>
+          <div className="text-2xl font-bold text-emerald-400">{stats.recent7d}</div>
           <div className="text-xs text-gray-400 mt-1">{t('recent7d')}</div>
         </div>
         <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
@@ -187,15 +144,11 @@ const StatsDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">
-            {t('scoreDistribution')}
-          </h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('scoreDistribution')}</h3>
           <div className="space-y-3">
             {(stats.scoreDistribution || []).map(({ bucket, count }) => (
               <div key={bucket} className="flex items-center gap-3">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${bucketBorderColors[bucket] || 'border-gray-500/30 bg-gray-500/10 text-gray-400'}`}
-                >
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${bucketBorderColors[bucket] || 'border-gray-500/30 bg-gray-500/10 text-gray-400'}`}>
                   {bucket}
                 </span>
                 <div className="flex-1 bg-gray-700/50 rounded-full h-2.5 overflow-hidden">
@@ -204,49 +157,34 @@ const StatsDashboard: React.FC = () => {
                     style={{ width: `${(count / maxBucketCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-8 text-right">
-                  {count}
-                </span>
+                <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
               </div>
             ))}
-            {(!stats.scoreDistribution ||
-              stats.scoreDistribution.length === 0) && (
-              <p className="text-xs text-gray-500 text-center py-4">
-                {t('noData')}
-              </p>
+            {(!stats.scoreDistribution || stats.scoreDistribution.length === 0) && (
+              <p className="text-xs text-gray-500 text-center py-4">{t('noData')}</p>
             )}
           </div>
         </div>
 
         <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">
-            {t('gradeDistribution')}
-          </h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('gradeDistribution')}</h3>
           <div className="space-y-3">
             {stats.byGrade.map(({ grade, count }) => (
               <div key={grade} className="flex items-center gap-3">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${gradeColors[grade] || gradeColors.X}`}
-                >
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${gradeColors[grade] || gradeColors.X}`}>
                   {grade}
                 </span>
                 <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      grade === 'S'
-                        ? 'bg-violet-500'
-                        : grade === 'A'
-                          ? 'bg-blue-500'
-                          : grade === 'B'
-                            ? 'bg-emerald-500'
-                            : 'bg-gray-500'
+                      grade === 'S' ? 'bg-violet-500' :
+                      grade === 'A' ? 'bg-blue-500' :
+                      grade === 'B' ? 'bg-emerald-500' : 'bg-gray-500'
                     }`}
                     style={{ width: `${(count / maxGradeCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-8 text-right">
-                  {count}
-                </span>
+                <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
               </div>
             ))}
           </div>
@@ -255,45 +193,30 @@ const StatsDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">
-            {t('trackDistribution')}
-          </h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('trackDistribution')}</h3>
           <div className="space-y-3">
             {stats.byTrack.map(({ track, count }) => (
               <div key={track} className="flex items-center gap-3">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs border ${trackColors[track] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}
-                >
-                  {{
-                    neglected: t('neglected'),
-                    'high-star': t('highStar'),
-                    steady: t('steady'),
-                  }[track] || track}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs border ${trackColors[track] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+                  {({ neglected: t('neglected'), 'high-star': t('highStar'), steady: t('steady') })[track] || track}
                 </span>
                 <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      track === 'neglected'
-                        ? 'bg-amber-500'
-                        : track === 'high-star'
-                          ? 'bg-rose-500'
-                          : 'bg-cyan-500'
+                      track === 'neglected' ? 'bg-amber-500' :
+                      track === 'high-star' ? 'bg-rose-500' : 'bg-cyan-500'
                     }`}
                     style={{ width: `${(count / maxTrackCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-8 text-right">
-                  {count}
-                </span>
+                <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">
-            {t('languageDistribution')}
-          </h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('languageDistribution')}</h3>
           <div className="space-y-2.5">
             {(stats.byLanguage || []).map(({ language, count }, i) => (
               <div key={language} className="flex items-center gap-3">
@@ -306,23 +229,17 @@ const StatsDashboard: React.FC = () => {
                     style={{ width: `${(count / maxLanguageCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-8 text-right">
-                  {count}
-                </span>
+                <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
               </div>
             ))}
             {(!stats.byLanguage || stats.byLanguage.length === 0) && (
-              <p className="text-xs text-gray-500 text-center py-4">
-                {t('noData')}
-              </p>
+              <p className="text-xs text-gray-500 text-center py-4">{t('noData')}</p>
             )}
           </div>
         </div>
 
         <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">
-            {t('evidenceDistribution')}
-          </h3>
+          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('evidenceDistribution')}</h3>
           <div className="space-y-2.5">
             {(stats.byEvidence || []).map(({ evidenceLevel, count }) => (
               <div key={evidenceLevel} className="flex items-center gap-3">
@@ -335,15 +252,11 @@ const StatsDashboard: React.FC = () => {
                     style={{ width: `${(count / maxEvidenceCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm text-gray-400 w-8 text-right">
-                  {count}
-                </span>
+                <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
               </div>
             ))}
             {(!stats.byEvidence || stats.byEvidence.length === 0) && (
-              <p className="text-xs text-gray-500 text-center py-4">
-                {t('noData')}
-              </p>
+              <p className="text-xs text-gray-500 text-center py-4">{t('noData')}</p>
             )}
           </div>
         </div>

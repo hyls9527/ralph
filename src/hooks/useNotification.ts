@@ -64,7 +64,7 @@ export function useNotification() {
         tag: `discovery-${projectName}`,
       });
     },
-    [notify],
+    [notify]
   );
 
   const notifyBatchComplete = useCallback(
@@ -75,7 +75,7 @@ export function useNotification() {
         tag: 'batch-complete',
       });
     },
-    [notify],
+    [notify]
   );
 
   return {

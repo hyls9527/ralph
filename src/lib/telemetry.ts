@@ -1,13 +1,13 @@
 /**
  * Ralph Telemetry Core - 生产级用户体验与性能收集系统
- *
+ * 
  * 核心能力：
  * 1. 用户行为追踪（点击流、交互路径、停留时间）
  * 2. 性能监控（Core Web Vitals、内存、渲染）
  * 3. 错误收集（JS错误、API失败、操作异常）
  * 4. 满意度反馈（NPS、任务完成率、用户评分）
  * 5. 自迭代闭环（数据分析→问题识别→优化建议）
- *
+ * 
  * 隐私优先：本地存储为主，用户完全控制数据
  */
 
@@ -23,44 +23,44 @@ export interface TelemetryEvent {
   userId?: string;
 }
 
-export type EventType =
-  | 'click' // 用户点击
-  | 'view' // 页面/组件视图
-  | 'search' // 搜索操作
-  | 'filter' // 筛选操作
-  | 'navigation' // 导航操作
-  | 'error' // 错误事件
-  | 'performance' // 性能指标
-  | 'feedback' // 用户反馈
-  | 'session' // 会话事件
-  | 'custom'; // 自定义事件
+export type EventType = 
+  | 'click'          // 用户点击
+  | 'view'           // 页面/组件视图
+  | 'search'         // 搜索操作
+  | 'filter'         // 筛选操作
+  | 'navigation'     // 导航操作
+  | 'error'          // 错误事件
+  | 'performance'    // 性能指标
+  | 'feedback'       // 用户反馈
+  | 'session'        // 会话事件
+  | 'custom';        // 自定义事件
 
-export type EventCategory =
-  | 'ux' // 用户体验
-  | 'performance' // 性能
-  | 'error' // 错误
-  | 'business' // 业务
-  | 'system'; // 系统
+export type EventCategory = 
+  | 'ux'             // 用户体验
+  | 'performance'    // 性能
+  | 'error'          // 错误
+  | 'business'       // 业务
+  | 'system';        // 系统
 
 export interface PerformanceMetrics {
   // Core Web Vitals
-  fcp?: number; // First Contentful Paint (ms)
-  lcp?: number; // Largest Contentful Paint (ms)
-  fid?: number; // First Input Delay (ms)
-  cls?: number; // Cumulative Layout Shift
-  ttfb?: number; // Time to First Byte (ms)
-  tti?: number; // Time to Interactive (ms)
-
+  fcp?: number;              // First Contentful Paint (ms)
+  lcp?: number;              // Largest Contentful Paint (ms)
+  fid?: number;              // First Input Delay (ms)
+  cls?: number;              // Cumulative Layout Shift
+  ttfb?: number;             // Time to First Byte (ms)
+  tti?: number;              // Time to Interactive (ms)
+  
   // Custom Metrics
-  renderTime?: number; // 组件渲染时间 (ms)
-  memoryUsage?: number; // 内存使用 (MB)
-  apiResponseTime?: number; // API 响应时间 (ms)
-  interactionTime?: number; // 用户交互响应时间 (ms)
-
+  renderTime?: number;       // 组件渲染时间 (ms)
+  memoryUsage?: number;      // 内存使用 (MB)
+  apiResponseTime?: number;  // API 响应时间 (ms)
+  interactionTime?: number;  // 用户交互响应时间 (ms)
+  
   // Ralph Specific
-  searchLatency?: number; // 搜索延迟 (ms)
-  evaluationTime?: number; // 评定耗时 (ms)
-  filterApplyTime?: number; // 筛选应用时间 (ms)
+  searchLatency?: number;    // 搜索延迟 (ms)
+  evaluationTime?: number;   // 评定耗时 (ms)
+  filterApplyTime?: number;  // 筛选应用时间 (ms)
 }
 
 export interface UserBehaviorData {
@@ -69,10 +69,10 @@ export interface UserBehaviorData {
   pageTitle?: string;
   previousPage?: string;
   clickPosition?: { x: number; y: number };
-  dwellTime?: number; // 停留时间 (ms)
-  scrollDepth?: number; // 滚动深度 (%)
-  inputType?: string; // 输入类型
-  inputValue?: string; // 输入值（脱敏）
+  dwellTime?: number;        // 停留时间 (ms)
+  scrollDepth?: number;      // 滚动深度 (%)
+  inputType?: string;        // 输入类型
+  inputValue?: string;       // 输入值（脱敏）
 }
 
 export interface ErrorData {
@@ -86,18 +86,18 @@ export interface ErrorData {
   context?: Record<string, any>;
   severity: 'fatal' | 'error' | 'warning' | 'info';
   recoverable: boolean;
-  userAction?: string; // 用户正在执行的操作
+  userAction?: string;       // 用户正在执行的操作
 }
 
 export interface FeedbackData {
   type: 'nps' | 'rating' | 'bug' | 'feature' | 'general';
-  score?: number; // 1-10 或 NPS -100~100
+  score?: number;            // 1-10 或 NPS -100~100
   comment?: string;
   page?: string;
   component?: string;
-  screenshot?: string; // Base64 截图（可选）
+  screenshot?: string;       // Base64 截图（可选）
   reproducible?: boolean;
-  email?: string; // 可选联系邮箱
+  email?: string;            // 可选联系邮箱
 }
 
 export interface SessionInfo {
@@ -120,9 +120,9 @@ export interface DeviceInfo {
   language: string;
   platform: string;
   userAgent: string;
-  memory?: number; // 设备内存 (GB)
+  memory?: number;          // 设备内存 (GB)
   cpuCores?: number;
-  connection?: string; // 网络类型
+  connection?: string;      // 网络类型
 }
 
 export interface UserInfo {
@@ -135,13 +135,13 @@ export interface UserInfo {
 
 export interface TelemetryConfig {
   enabled: boolean;
-  sampleRate: number; // 0-1, 采样率
+  sampleRate: number;        // 0-1, 采样率
   maxEventsPerSession: number;
   maxLocalStorageSize: number; // MB
-  autoFlushInterval: number; // ms
+  autoFlushInterval: number;  // ms
   debugMode: boolean;
   privacyMode: 'full' | 'minimal' | 'off';
-  remoteEndpoint?: string; // 可选远程端点
+  remoteEndpoint?: string;   // 可选远程端点
   consentRequired: boolean;
 }
 
@@ -177,7 +177,7 @@ export interface Recommendation {
   category: 'performance' | 'ux' | 'error' | 'accessibility' | 'security';
   title: string;
   description: string;
-  impact: string; // 预期影响
+  impact: string;            // 预期影响
   effort: 'quick' | 'moderate' | 'complex';
   evidence: Array<{
     metric: string;
@@ -205,7 +205,7 @@ class TelemetryCore {
   constructor(config?: Partial<TelemetryConfig>) {
     this.config = this.mergeDefaults(config);
     this.session = this.createSession();
-
+    
     if (typeof window !== 'undefined') {
       this.initialize();
     }
@@ -219,33 +219,34 @@ class TelemetryCore {
     try {
       // 加载持久化配置
       this.loadPersistedConfig();
-
+      
       // 设置性能观察器
       this.setupPerformanceObservers();
-
+      
       // 设置全局错误处理
       this.setupGlobalErrorHandlers();
-
+      
       // 设置会话管理
       this.setupSessionManagement();
-
+      
       // 启动自动刷新
       this.startAutoFlush();
-
+      
       // 监听页面可见性变化
       this.setupVisibilityTracking();
-
+      
       this.isInitialized = true;
-      this.log('debug', 'Telemetry initialized', {
+      this.log('debug', 'Telemetry initialized', { 
         sessionId: this.session.id,
-        config: this.config,
+        config: this.config 
       });
-
+      
       // 发送初始化事件
       this.track('session', 'system', {
         action: 'init',
         deviceInfo: this.session.deviceInfo,
       });
+      
     } catch (error) {
       console.error('Telemetry initialization failed:', error);
     }
@@ -268,7 +269,7 @@ class TelemetryCore {
   private createSession(): SessionInfo {
     const sessionId = this.generateUUID();
     const now = Date.now();
-
+    
     return {
       id: sessionId,
       startTime: now,
@@ -301,7 +302,7 @@ class TelemetryCore {
   track(
     type: EventType,
     category: EventCategory,
-    data: Record<string, any> = {},
+    data: Record<string, any> = {}
   ): void {
     if (!this.shouldTrack()) return;
 
@@ -412,10 +413,7 @@ class TelemetryCore {
   /**
    * 追踪性能指标
    */
-  recordPerformanceMetric(
-    metric: keyof PerformanceMetrics,
-    value: number,
-  ): void {
+  recordPerformanceMetric(metric: keyof PerformanceMetrics, value: number): void {
     const entry: PerformanceMetrics = { [metric]: value } as any;
     this.performanceMetrics.push(entry);
 
@@ -455,7 +453,7 @@ class TelemetryCore {
       // FCP
       new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        const fcp = entries.find((e) => e.name === 'first-contentful-paint');
+        const fcp = entries.find(e => e.name === 'first-contentful-paint');
         if (fcp) {
           this.recordPerformanceMetric('fcp', fcp.startTime);
         }
@@ -475,10 +473,7 @@ class TelemetryCore {
         const entries = list.getEntries();
         for (const entry of entries) {
           const fidEntry = entry as PerformanceEventTiming;
-          this.recordPerformanceMetric(
-            'fid',
-            (fidEntry.processingStart || 0) - entry.startTime,
-          );
+          this.recordPerformanceMetric('fid', (fidEntry.processingStart || 0) - entry.startTime);
         }
       }).observe({ type: 'first-input', buffered: true });
 
@@ -494,19 +489,12 @@ class TelemetryCore {
       }).observe({ type: 'layout-shift', buffered: true });
 
       // TTFB
-      const navigation = performance.getEntriesByType(
-        'navigation',
-      )[0] as PerformanceNavigationTiming;
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       if (navigation) {
-        this.recordPerformanceMetric(
-          'ttfb',
-          navigation.responseStart - navigation.requestStart,
-        );
-        this.recordPerformanceMetric(
-          'tti',
-          navigation.domInteractive - navigation.requestStart,
-        );
+        this.recordPerformanceMetric('ttfb', navigation.responseStart - navigation.requestStart);
+        this.recordPerformanceMetric('tti', navigation.domInteractive - navigation.requestStart);
       }
+
     } catch (error) {
       this.log('warn', 'Failed to setup performance observers', { error });
     }
@@ -519,10 +507,7 @@ class TelemetryCore {
     setInterval(() => {
       const memory = (performance as any).memory;
       if (memory) {
-        this.recordPerformanceMetric(
-          'memoryUsage',
-          memory.usedJSHeapSize / (1024 * 1024),
-        );
+        this.recordPerformanceMetric('memoryUsage', memory.usedJSHeapSize / (1024 * 1024));
       }
     }, 30000); // 每30秒检查一次
   }
@@ -561,21 +546,17 @@ class TelemetryCore {
     });
 
     // 资源加载错误
-    window.addEventListener(
-      'error',
-      (event) => {
-        if (event.target !== window) {
-          const target = event.target as HTMLElement;
-          this.trackError({
-            errorType: 'network',
-            message: `Resource load failed: ${target.tagName} ${target.getAttribute('src') || target.getAttribute('href')}`,
-            severity: 'warning',
-            recoverable: true,
-          });
-        }
-      },
-      true,
-    ); // 使用捕获阶段
+    window.addEventListener('error', (event) => {
+      if (event.target !== window) {
+        const target = event.target as HTMLElement;
+        this.trackError({
+          errorType: 'network',
+          message: `Resource load failed: ${target.tagName} ${target.getAttribute('src') || target.getAttribute('href')}`,
+          severity: 'warning',
+          recoverable: true,
+        });
+      }
+    }, true); // 使用捕获阶段
   }
 
   // ==================== 会话管理 ====================
@@ -668,22 +649,19 @@ class TelemetryCore {
 
       this.log('debug', `Flushed ${batch.length} events`);
       this.emit('flush', { count: batch.length });
+
     } catch (error) {
       this.log('error', 'Flush failed', { error });
       // 失败的事件重新加入队列
-      this.events.unshift(...((await this.getFromLocalStorage()) || []));
+      this.events.unshift(...(await this.getFromLocalStorage() || []));
     }
   }
 
   private async persistToLocalStorage(events: TelemetryEvent[]): Promise<void> {
     try {
-      const existing = JSON.parse(
-        localStorage.getItem('ralph-telemetry-events') || '[]',
-      );
-      const updated = [...existing, ...events].slice(
-        -this.config.maxEventsPerSession,
-      );
-
+      const existing = JSON.parse(localStorage.getItem('ralph-telemetry-events') || '[]');
+      const updated = [...existing, ...events].slice(-this.config.maxEventsPerSession);
+      
       // 检查存储大小
       const size = new Blob([JSON.stringify(updated)]).size / (1024 * 1024);
       if (size > this.config.maxLocalStorageSize) {
@@ -730,10 +708,7 @@ class TelemetryCore {
 
   private persistSession(): void {
     try {
-      localStorage.setItem(
-        'ralph-telemetry-session',
-        JSON.stringify(this.session),
-      );
+      localStorage.setItem('ralph-telemetry-session', JSON.stringify(this.session));
     } catch (error) {
       this.log('error', 'Failed to persist session', { error });
     }
@@ -757,16 +732,14 @@ class TelemetryCore {
    * 生成分析报告
    */
   async generateReport(days: number = 7): Promise<AnalyticsReport> {
-    const events = (await this.getFromLocalStorage()) || [];
+    const events = await this.getFromLocalStorage() || [];
     const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-    const filteredEvents = events.filter((e) => e.timestamp >= cutoff);
+    const filteredEvents = events.filter(e => e.timestamp >= cutoff);
 
     // 计算基础指标
-    const sessions = new Set(filteredEvents.map((e) => e.sessionId));
-    const errors = filteredEvents.filter((e) => e.type === 'error');
-    const performanceEvents = filteredEvents.filter(
-      (e) => e.type === 'performance',
-    );
+    const sessions = new Set(filteredEvents.map(e => e.sessionId));
+    const errors = filteredEvents.filter(e => e.type === 'error');
+    const performanceEvents = filteredEvents.filter(e => e.type === 'performance');
 
     // 计算性能百分位数
     const metrics = this.calculatePerformancePercentiles(performanceEvents);
@@ -778,19 +751,14 @@ class TelemetryCore {
     const journeys = this.analyzeUserJourneys(filteredEvents);
 
     // 生成优化建议
-    const recommendations = this.generateRecommendations(
-      metrics,
-      errors,
-      journeys,
-    );
+    const recommendations = this.generateRecommendations(metrics, errors, journeys);
 
     return {
       period: { start: cutoff, end: Date.now() },
       summary: {
         totalSessions: sessions.size,
         totalUsers: sessions.size, // 简化：假设每个会话是一个用户
-        avgSessionDuration:
-          this.calculateAverageSessionDuration(filteredEvents),
+        avgSessionDuration: this.calculateAverageSessionDuration(filteredEvents),
         bounceRate: this.calculateBounceRate(filteredEvents),
         errorRate: errors.length / filteredEvents.length || 0,
         taskCompletionRate: this.calculateTaskCompletionRate(filteredEvents),
@@ -803,21 +771,14 @@ class TelemetryCore {
     };
   }
 
-  private calculatePerformancePercentiles(
-    events: TelemetryEvent[],
-  ): PerformanceMetrics & {
-    p50: number;
-    p90: number;
-    p95: number;
-    p99: number;
-  } {
+  private calculatePerformancePercentiles(events: TelemetryEvent[]): PerformanceMetrics & { p50: number; p90: number; p95: number; p99: number } {
     const values = events
-      .filter((e) => e.data.value !== undefined)
-      .map((e) => e.data.value as number)
+      .filter(e => e.data.value !== undefined)
+      .map(e => e.data.value as number)
       .sort((a, b) => a - b);
 
     const percentile = (p: number) => {
-      const index = Math.ceil((p / 100) * values.length) - 1;
+      const index = Math.ceil(p / 100 * values.length) - 1;
       return values[index] || 0;
     };
 
@@ -837,19 +798,14 @@ class TelemetryCore {
     };
   }
 
-  private extractMetric(
-    events: TelemetryEvent[],
-    metric: string,
-  ): number | undefined {
-    const event = events.find((e) => e.data.metric === metric);
+  private extractMetric(events: TelemetryEvent[], metric: string): number | undefined {
+    const event = events.find(e => e.data.metric === metric);
     return event?.data.value;
   }
 
-  private aggregateErrors(
-    errors: TelemetryEvent[],
-  ): Array<{ count: number; message: string }> {
+  private aggregateErrors(errors: TelemetryEvent[]): Array<{ count: number; message: string }> {
     const aggregated = new Map<string, number>();
-
+    
     for (const error of errors) {
       const key = error.data.message || 'Unknown error';
       aggregated.set(key, (aggregated.get(key) || 0) + 1);
@@ -861,9 +817,7 @@ class TelemetryCore {
       .slice(0, 10);
   }
 
-  private analyzeUserJourneys(
-    events: TelemetryEvent[],
-  ): Array<{ path: string[]; count: number; dropOffPoint?: string }> {
+  private analyzeUserJourneys(events: TelemetryEvent[]): Array<{ path: string[]; count: number; dropOffPoint?: string }> {
     // 简化实现：提取常见路径
     const paths = new Map<string, number>();
 
@@ -891,7 +845,7 @@ class TelemetryCore {
   private generateRecommendations(
     metrics: any,
     errors: TelemetryEvent[],
-    _journeys: any[],
+    _journeys: any[]
   ): Recommendation[] {
     const recommendations: Recommendation[] = [];
 
@@ -905,14 +859,12 @@ class TelemetryCore {
         description: `检测到 ${errors.length} 个错误，需要关注`,
         impact: '降低用户流失率',
         effort: 'moderate',
-        evidence: [
-          {
-            metric: 'errorRate',
-            currentValue: errors.length,
-            targetValue: 5,
-            severity: 'above',
-          },
-        ],
+        evidence: [{
+          metric: 'errorRate',
+          currentValue: errors.length,
+          targetValue: 5,
+          severity: 'above',
+        }],
         status: 'pending',
         createdAt: Date.now(),
       });
@@ -928,14 +880,12 @@ class TelemetryCore {
         description: '考虑代码分割和懒加载以改善 LCP',
         impact: '提升用户留存率',
         effort: 'moderate',
-        evidence: [
-          {
-            metric: 'lcp',
-            currentValue: metrics.lcp,
-            targetValue: 2000,
-            severity: 'above',
-          },
-        ],
+        evidence: [{
+          metric: 'lcp',
+          currentValue: metrics.lcp,
+          targetValue: 2000,
+          severity: 'above',
+        }],
         status: 'pending',
         createdAt: Date.now(),
       });
@@ -945,54 +895,33 @@ class TelemetryCore {
   }
 
   // 辅助计算方法
-  private calculateAverageSessionDuration(
-    _events: TelemetryEvent[],
-  ): number | null {
-    const sessionEvents = _events.filter(
-      (e) => e.type === 'session' && e.data.action === 'end' && e.data.duration,
-    );
+  private calculateAverageSessionDuration(_events: TelemetryEvent[]): number | null {
+    const sessionEvents = _events.filter(e => e.type === 'session' && e.data.action === 'end' && e.data.duration);
     if (sessionEvents.length === 0) return null;
-    const total = sessionEvents.reduce(
-      (sum, e) => sum + (e.data.duration as number),
-      0,
-    );
+    const total = sessionEvents.reduce((sum, e) => sum + (e.data.duration as number), 0);
     return total / sessionEvents.length;
   }
 
   private calculateBounceRate(_events: TelemetryEvent[]): number | null {
-    const sessions = new Set(
-      _events.filter((e) => e.type === 'session').map((e) => e.sessionId),
-    );
-    const singlePageSessions = _events.filter((e) => e.type === 'view').length;
+    const sessions = new Set(_events.filter(e => e.type === 'session').map(e => e.sessionId));
+    const singlePageSessions = _events.filter(e => e.type === 'view').length;
     if (sessions.size === 0) return null;
     // Simplified: count sessions with only one page view
-    return singlePageSessions > 0
-      ? Math.min(singlePageSessions / sessions.size, 1)
-      : null;
+    return singlePageSessions > 0 ? Math.min(singlePageSessions / sessions.size, 1) : null;
   }
 
-  private calculateTaskCompletionRate(
-    _events: TelemetryEvent[],
-  ): number | null {
-    const searchEvents = _events.filter((e) => e.type === 'search');
+  private calculateTaskCompletionRate(_events: TelemetryEvent[]): number | null {
+    const searchEvents = _events.filter(e => e.type === 'search');
     if (searchEvents.length === 0) return null;
-    const withResults = searchEvents.filter(
-      (e) => (e.data.resultCount as number) > 0,
-    );
+    const withResults = searchEvents.filter(e => (e.data.resultCount as number) > 0);
     return withResults.length / searchEvents.length;
   }
 
   private calculateNPSScore(_events: TelemetryEvent[]): number | null {
-    const feedbackEvents = _events.filter(
-      (e) => e.type === 'feedback' && e.data.score !== undefined,
-    );
+    const feedbackEvents = _events.filter(e => e.type === 'feedback' && e.data.score !== undefined);
     if (feedbackEvents.length === 0) return null;
-    const promoters = feedbackEvents.filter(
-      (e) => (e.data.score as number) >= 9,
-    ).length;
-    const detractors = feedbackEvents.filter(
-      (e) => (e.data.score as number) <= 6,
-    ).length;
+    const promoters = feedbackEvents.filter(e => (e.data.score as number) >= 9).length;
+    const detractors = feedbackEvents.filter(e => (e.data.score as number) <= 6).length;
     return ((promoters - detractors) / feedbackEvents.length) * 100;
   }
 
@@ -1000,7 +929,7 @@ class TelemetryCore {
 
   private shouldTrack(): boolean {
     if (!this.config.enabled) return false;
-
+    
     // 采样率检查
     if (Math.random() > this.config.sampleRate) return false;
 
@@ -1017,7 +946,7 @@ class TelemetryCore {
     if (this.config.privacyMode === 'off') return {};
 
     const sanitized: Record<string, any> = {};
-
+    
     for (const [key, value] of Object.entries(data)) {
       switch (key) {
         case 'token':
@@ -1043,7 +972,7 @@ class TelemetryCore {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
+      hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString(16);
@@ -1065,7 +994,7 @@ class TelemetryCore {
   private emit(event: string, data: any): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
-      listeners.forEach((listener) => listener(data));
+      listeners.forEach(listener => listener(data));
     }
   }
 
@@ -1074,27 +1003,20 @@ class TelemetryCore {
       this.listeners.set(event, new Set());
     }
     this.listeners.get(event)!.add(callback);
-
+    
     // 返回取消订阅函数
     return () => this.listeners.get(event)?.delete(callback);
   }
 
   private log(level: string, message: string, data?: any): void {
     if (!this.config.debugMode) return;
-
+    
     const prefix = `[Telemetry:${level.toUpperCase()}]`;
     switch (level) {
-      case 'error':
-        console.error(prefix, message, data);
-        break;
-      case 'warn':
-        console.warn(prefix, message, data);
-        break;
-      case 'debug':
-        console.debug(prefix, message, data);
-        break;
-      default:
-        console.log(prefix, message, data);
+      case 'error': console.error(prefix, message, data); break;
+      case 'warn': console.warn(prefix, message, data); break;
+      case 'debug': console.debug(prefix, message, data); break;
+      default: console.log(prefix, message, data);
     }
   }
 
@@ -1147,20 +1069,16 @@ class TelemetryCore {
    * 导出数据为 JSON
    */
   async exportData(): Promise<string> {
-    const events = (await this.getFromLocalStorage()) || [];
-    return JSON.stringify(
-      {
-        version: '1.0.0',
-        exportedAt: Date.now(),
-        session: this.session,
-        events,
-        errors: this.errors,
-        feedbacks: this.feedbacks,
-        performanceMetrics: this.performanceMetrics,
-      },
-      null,
-      2,
-    );
+    const events = await this.getFromLocalStorage() || [];
+    return JSON.stringify({
+      version: '1.0.0',
+      exportedAt: Date.now(),
+      session: this.session,
+      events,
+      errors: this.errors,
+      feedbacks: this.feedbacks,
+      performanceMetrics: this.performanceMetrics,
+    }, null, 2);
   }
 
   /**
@@ -1186,9 +1104,7 @@ export function getTelemetry(config?: Partial<TelemetryConfig>): TelemetryCore {
   return instance;
 }
 
-export function initTelemetry(
-  config?: Partial<TelemetryConfig>,
-): TelemetryCore {
+export function initTelemetry(config?: Partial<TelemetryConfig>): TelemetryCore {
   if (instance) {
     instance.destroy();
   }
@@ -1199,7 +1115,7 @@ export function initTelemetry(
 // React Hook 封装
 export function useTelemetry() {
   const telemetry = getTelemetry();
-
+  
   return {
     track: telemetry.track.bind(telemetry),
     trackClick: telemetry.trackClick.bind(telemetry),

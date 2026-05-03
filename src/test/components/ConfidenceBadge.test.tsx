@@ -44,9 +44,7 @@ describe('ConfidenceBadge', () => {
   });
 
   it('showDescription 为 true 时显示描述', () => {
-    const html = renderToString(
-      <ConfidenceBadge level="L1" showDescription={true} />,
-    );
+    const html = renderToString(<ConfidenceBadge level="L1" showDescription={true} />);
     expect(html).toContain('API 验证');
     expect(html).toContain('最高置信度');
   });

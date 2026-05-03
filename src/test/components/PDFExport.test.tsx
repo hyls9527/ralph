@@ -3,9 +3,7 @@ import { renderToString } from 'react-dom/server';
 import PDFExport from '../../components/PDFExport';
 import type { ProjectRecommendation } from '../../types';
 
-function makeProject(
-  overrides: Partial<ProjectRecommendation> = {},
-): ProjectRecommendation {
+function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {
     repo: {
       owner: 'test',
@@ -35,12 +33,7 @@ function makeProject(
     dimensions: [],
     trustBadge: {
       level: 2,
-      l1: {
-        status: 'recommended',
-        icon: '✓',
-        label: 'Ralph 推荐',
-        color: 'emerald',
-      },
+      l1: { status: 'recommended', icon: '✓', label: 'Ralph 推荐', color: 'emerald' },
     },
     vetoFlags: [],
     gateChecks: [],
@@ -74,27 +67,25 @@ describe('PDFExport', () => {
 
   it('有项目时渲染导出按钮', () => {
     const html = renderToString(
-      <PDFExport projects={[makeProject()]} query="rust" />,
+      <PDFExport projects={[makeProject()]} query="rust" />
     );
     expect(html).toContain('导出 PDF');
   });
 
   it('多个项目时渲染导出按钮', () => {
     const projects = [
-      makeProject({
-        repo: { ...makeProject().repo, name: 'r1', fullName: 'a/r1' },
-      }),
-      makeProject({
-        repo: { ...makeProject().repo, name: 'r2', fullName: 'b/r2' },
-      }),
+      makeProject({ repo: { ...makeProject().repo, name: 'r1', fullName: 'a/r1' } }),
+      makeProject({ repo: { ...makeProject().repo, name: 'r2', fullName: 'b/r2' } }),
     ];
-    const html = renderToString(<PDFExport projects={projects} query="test" />);
+    const html = renderToString(
+      <PDFExport projects={projects} query="test" />
+    );
     expect(html).toContain('导出 PDF');
   });
 
   it('组件渲染不崩溃', () => {
     expect(() =>
-      renderToString(<PDFExport projects={[makeProject()]} query="test" />),
+      renderToString(<PDFExport projects={[makeProject()]} query="test" />)
     ).not.toThrow();
   });
 });

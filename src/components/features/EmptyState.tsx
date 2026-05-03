@@ -7,11 +7,7 @@ interface EmptyStateProps {
   onClearFilters?: () => void;
 }
 
-export function EmptyState({
-  hasResults,
-  hasSearched = false,
-  onClearFilters,
-}: EmptyStateProps) {
+export function EmptyState({ hasResults, hasSearched = false, onClearFilters }: EmptyStateProps) {
   const { isDark } = useTheme();
   const { t } = useI18n();
   const isLight = !isDark;
@@ -19,27 +15,17 @@ export function EmptyState({
   if (hasResults) return null;
 
   return (
-    <div
-      className={`text-center py-16 ${isLight ? 'text-gray-500' : 'text-gray-400'}`}
-    >
-      <svg
-        className="w-16 h-16 mx-auto mb-4 opacity-30"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
+    <div className={`text-center py-16 ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
+      <svg className="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
       <h3 className="text-lg font-medium mb-2">
         {hasSearched ? t('noMatchFound') : t('startSearch')}
       </h3>
       <p className="text-sm max-w-md mx-auto mb-4">
-        {hasSearched ? t('tryAdjust') : t('searchHint')}
+        {hasSearched
+          ? t('tryAdjust')
+          : t('searchHint')}
       </p>
       {onClearFilters && (
         <button

@@ -11,21 +11,14 @@ const ReportShare: React.FC<ReportShareProps> = ({ project }) => {
 
   const generateMarkdown = useCallback((p: ProjectRecommendation): string => {
     const dims = p.dimensions || [];
-    const dimRows = dims
-      .map((d) => {
-        const ratio =
-          d.maxScore > 0 ? ((d.score / d.maxScore) * 100).toFixed(1) : '0.0';
-        return `| ${d.dimension} | ${d.score}/${d.maxScore} | ${ratio}% |`;
-      })
-      .join('\n');
+    const dimRows = dims.map(d => {
+      const ratio = d.maxScore > 0 ? ((d.score / d.maxScore) * 100).toFixed(1) : '0.0';
+      return `| ${d.dimension} | ${d.score}/${d.maxScore} | ${ratio}% |`;
+    }).join('\n');
 
-    const subScoreRows = dims
-      .flatMap((d) =>
-        (d.subScores || []).map(
-          ([name, score, max]) => `  - ${name}: ${score}/${max}`,
-        ),
-      )
-      .join('\n');
+    const subScoreRows = dims.flatMap(d =>
+      (d.subScores || []).map(([name, score, max]) => `  - ${name}: ${score}/${max}`)
+    ).join('\n');
 
     return `# ${p.repo.fullName} - Ralph 评估报告
 
@@ -61,32 +54,18 @@ ${subScoreRows ? `### 子项得分\n\n${subScoreRows}` : ''}
 
 ### 一票否决检查
 
-${p.vetoFlags && p.vetoFlags.length > 0 ? p.vetoFlags.map((f) => `- ❌ ${f}`).join('\n') : '- ✅ 无一票否决项'}
+${p.vetoFlags && p.vetoFlags.length > 0 ? p.vetoFlags.map(f => `- ❌ ${f}`).join('\n') : '- ✅ 无一票否决项'}
 
 ### 信任徽章
 
-${
-  p.trustBadge
-    ? [
-        `- 状态: ${p.trustBadge.l1?.status === 'recommended' ? '推荐' : p.trustBadge.l1?.status === 'caution' ? '谨慎' : '不推荐'}`,
-        `- 标签: ${p.trustBadge.l1?.label || '无'}`,
-        p.trustBadge.l2
-          ? `- 证据摘要: ${p.trustBadge.l2.evidenceSummary || '无'}`
-          : null,
-        p.trustBadge.l2
-          ? `- 质量分: ${p.trustBadge.l2.keyMetrics?.qualityScore ?? '-'}`
-          : null,
-        p.trustBadge.l2
-          ? `- 维护分: ${p.trustBadge.l2.keyMetrics?.maintenanceScore ?? '-'}`
-          : null,
-        p.trustBadge.l2
-          ? `- 安全状态: ${p.trustBadge.l2.keyMetrics?.securityStatus ?? '-'}`
-          : null,
-      ]
-        .filter(Boolean)
-        .join('\n')
-    : '无'
-}
+${p.trustBadge ? [
+  `- 状态: ${p.trustBadge.l1?.status === 'recommended' ? '推荐' : p.trustBadge.l1?.status === 'caution' ? '谨慎' : '不推荐'}`,
+  `- 标签: ${p.trustBadge.l1?.label || '无'}`,
+  p.trustBadge.l2 ? `- 证据摘要: ${p.trustBadge.l2.evidenceSummary || '无'}` : null,
+  p.trustBadge.l2 ? `- 质量分: ${p.trustBadge.l2.keyMetrics?.qualityScore ?? '-'}` : null,
+  p.trustBadge.l2 ? `- 维护分: ${p.trustBadge.l2.keyMetrics?.maintenanceScore ?? '-'}` : null,
+  p.trustBadge.l2 ? `- 安全状态: ${p.trustBadge.l2.keyMetrics?.securityStatus ?? '-'}` : null,
+].filter(Boolean).join('\n') : '无'}
 
 ---
 
@@ -126,18 +105,8 @@ ${
         className="p-1.5 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-gray-200 transition-colors"
         title="生成评估报告"
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-          />
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
       </button>
 
@@ -145,25 +114,13 @@ ${
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-100">
-                评估报告 - {project.repo.fullName}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-100">评估报告 - {project.repo.fullName}</h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="p-1 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-gray-200"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>

@@ -10,40 +10,13 @@ interface ComparisonPanelProps {
 
 const DIMENSION_NAMES = ['质量', '维护', '实用', '文档', '社区', '安全'];
 
-const DIMENSION_COLORS: Record<
-  string,
-  { stroke: string; fill: string; text: string }
-> = {
-  质量: {
-    stroke: '#34d399',
-    fill: 'rgba(52,211,153,0.15)',
-    text: 'text-emerald-400',
-  },
-  维护: {
-    stroke: '#60a5fa',
-    fill: 'rgba(96,165,250,0.15)',
-    text: 'text-blue-400',
-  },
-  实用: {
-    stroke: '#a78bfa',
-    fill: 'rgba(167,139,250,0.15)',
-    text: 'text-violet-400',
-  },
-  文档: {
-    stroke: '#fbbf24',
-    fill: 'rgba(251,191,36,0.15)',
-    text: 'text-amber-400',
-  },
-  社区: {
-    stroke: '#f472b6',
-    fill: 'rgba(244,114,182,0.15)',
-    text: 'text-pink-400',
-  },
-  安全: {
-    stroke: '#22d3ee',
-    fill: 'rgba(34,211,238,0.15)',
-    text: 'text-cyan-400',
-  },
+const DIMENSION_COLORS: Record<string, { stroke: string; fill: string; text: string }> = {
+  '质量': { stroke: '#34d399', fill: 'rgba(52,211,153,0.15)', text: 'text-emerald-400' },
+  '维护': { stroke: '#60a5fa', fill: 'rgba(96,165,250,0.15)', text: 'text-blue-400' },
+  '实用': { stroke: '#a78bfa', fill: 'rgba(167,139,250,0.15)', text: 'text-violet-400' },
+  '文档': { stroke: '#fbbf24', fill: 'rgba(251,191,36,0.15)', text: 'text-amber-400' },
+  '社区': { stroke: '#f472b6', fill: 'rgba(244,114,182,0.15)', text: 'text-pink-400' },
+  '安全': { stroke: '#22d3ee', fill: 'rgba(34,211,238,0.15)', text: 'text-cyan-400' },
 };
 
 const PROJECT_COLORS = [
@@ -62,14 +35,10 @@ const GRADE_COLORS: Record<string, string> = {
 
 const getTrackLabel = (track: string): string => {
   switch (track) {
-    case 'neglected':
-      return t('trackNeglected');
-    case 'high-star':
-      return t('trackHighStar');
-    case 'steady':
-      return t('trackSteady');
-    default:
-      return track;
+    case 'neglected': return t('trackNeglected');
+    case 'high-star': return t('trackHighStar');
+    case 'steady': return t('trackSteady');
+    default: return track;
   }
 };
 
@@ -106,8 +75,8 @@ const RadarChart: React.FC<RadarChartProps> = ({ projects, size }) => {
 
   const projectData = useMemo(() => {
     return projects.map((p, pi) => {
-      const scores = DIMENSION_NAMES.map((dim) => {
-        const d = p.dimensions?.find((d) => d.dimension === dim);
+      const scores = DIMENSION_NAMES.map(dim => {
+        const d = p.dimensions?.find(d => d.dimension === dim);
         return d ? (d.score / d.maxScore) * 100 : 0;
       });
       return { scores, color: PROJECT_COLORS[pi % PROJECT_COLORS.length] };
@@ -115,12 +84,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ projects, size }) => {
   }, [projects]);
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      className="mx-auto"
-    >
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto">
       {Array.from({ length: levels }).map((_, level) => {
         const r = (radius / levels) * (level + 1);
         const points = DIMENSION_NAMES.map((_, i) => {
@@ -185,8 +149,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ projects, size }) => {
 
       {DIMENSION_NAMES.map((dim, i) => {
         const lp = getLabelPoint(i);
-        const anchor =
-          lp.x < cx - 5 ? 'end' : lp.x > cx + 5 ? 'start' : 'middle';
+        const anchor = lp.x < cx - 5 ? 'end' : lp.x > cx + 5 ? 'start' : 'middle';
         return (
           <text
             key={`label-${i}`}
@@ -205,21 +168,17 @@ const RadarChart: React.FC<RadarChartProps> = ({ projects, size }) => {
   );
 };
 
-const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
-  projects,
-  onExit,
-  onRemoveProject,
-}) => {
+const ComparisonPanel: React.FC<ComparisonPanelProps> = ({ projects, onExit, onRemoveProject }) => {
   const { t } = useI18n();
   if (projects.length === 0) return null;
 
   const winners = useMemo(() => {
     const result: Record<string, string[]> = {};
-    DIMENSION_NAMES.forEach((dim) => {
+    DIMENSION_NAMES.forEach(dim => {
       let bestScore = -1;
       let bestProjects: string[] = [];
-      projects.forEach((p) => {
-        const d = p.dimensions?.find((d) => d.dimension === dim);
+      projects.forEach(p => {
+        const d = p.dimensions?.find(d => d.dimension === dim);
         const score = d ? d.score : 0;
         if (score > bestScore) {
           bestScore = score;
@@ -240,24 +199,19 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
     md += `## ${t('overview')}\n\n`;
     md += `| ${t('project')} | ${t('score')} | ${t('grade')} | ${t('track')} | ${t('recommendationIndex')} | ${t('stars')} |\n`;
     md += '|------|------|------|------|----------|------|\n';
-    projects.forEach((p) => {
+    projects.forEach(p => {
       md += `| ${p.repo.fullName} | ${p.totalScore.toFixed(1)} | ${p.grade} | ${getTrackLabel(p.track)} | ${p.recommendationIndex.toFixed(2)} | ${p.repo.stargazersCount} |\n`;
     });
 
     md += `\n## ${t('dimensionComparison')}\n\n`;
-    md +=
-      `| ${t('dimension')} | ` +
-      projects.map((p) => p.repo.name).join(' | ') +
-      ` | ${t('winner')} |\n`;
+    md += `| ${t('dimension')} | ` + projects.map(p => p.repo.name).join(' | ') + ` | ${t('winner')} |\n`;
     md += '|------|' + projects.map(() => '------|').join('') + '------|\n';
-    DIMENSION_NAMES.forEach((dim) => {
-      const scores = projects.map((p) => {
-        const d = p.dimensions?.find((d) => d.dimension === dim);
+    DIMENSION_NAMES.forEach(dim => {
+      const scores = projects.map(p => {
+        const d = p.dimensions?.find(d => d.dimension === dim);
         return d ? `${d.score}/${d.maxScore}` : '-';
       });
-      const winnerNames = (winners[dim] || [])
-        .map((fn) => fn.split('/')[1])
-        .join(', ');
+      const winnerNames = (winners[dim] || []).map(fn => fn.split('/')[1]).join(', ');
       md += `| ${dim} | ${scores.join(' | ')} | ${winnerNames} |\n`;
     });
 
@@ -278,9 +232,7 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
             {t('compareTitle')} ({projects.length})
           </h3>
           <span className="text-xs text-gray-500">
-            {projects.length === 1
-              ? t('selectMoreToCompare')
-              : t('projectsSideBySide', { count: projects.length })}
+            {projects.length === 1 ? t('selectMoreToCompare') : t('projectsSideBySide', { count: projects.length })}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -289,26 +241,13 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
               onClick={handleExportMarkdown}
               className="text-xs px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors flex items-center gap-1"
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               {t('exportMD')}
             </button>
           )}
-          <button
-            onClick={onExit}
-            className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
-          >
+          <button onClick={onExit} className="text-xs text-gray-400 hover:text-gray-300 transition-colors">
             {t('exitCompare')}
           </button>
         </div>
@@ -320,12 +259,7 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
         </div>
       )}
 
-      <div
-        className="grid gap-3"
-        style={{
-          gridTemplateColumns: `repeat(${Math.min(projects.length, 4)}, 1fr)`,
-        }}
-      >
+      <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(projects.length, 4)}, 1fr)` }}>
         {projects.map((p, pi) => (
           <div
             key={p.repo.fullName}
@@ -342,36 +276,23 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
             )}
 
             <div className="mb-2">
-              <h4 className="text-sm font-medium text-white truncate pr-4">
-                {p.repo.name}
-              </h4>
-              <p className="text-[10px] text-gray-500 truncate">
-                {p.repo.owner}
-              </p>
+              <h4 className="text-sm font-medium text-white truncate pr-4">{p.repo.name}</h4>
+              <p className="text-[10px] text-gray-500 truncate">{p.repo.owner}</p>
             </div>
 
             <div className="flex items-center gap-2 mb-3">
-              <span
-                className="text-lg font-bold"
-                style={{
-                  color: PROJECT_COLORS[pi % PROJECT_COLORS.length].stroke,
-                }}
-              >
+              <span className="text-lg font-bold" style={{ color: PROJECT_COLORS[pi % PROJECT_COLORS.length].stroke }}>
                 {p.totalScore.toFixed(1)}
               </span>
-              <span
-                className={`text-[10px] px-1.5 py-0.5 rounded border ${GRADE_COLORS[p.grade]}`}
-              >
+              <span className={`text-[10px] px-1.5 py-0.5 rounded border ${GRADE_COLORS[p.grade]}`}>
                 {p.grade}
               </span>
-              <span className="text-[10px] text-gray-500">
-                {getTrackLabel(p.track)}
-              </span>
+              <span className="text-[10px] text-gray-500">{getTrackLabel(p.track)}</span>
             </div>
 
             <div className="space-y-1.5">
-              {DIMENSION_NAMES.map((dim) => {
-                const d = p.dimensions?.find((d) => d.dimension === dim);
+              {DIMENSION_NAMES.map(dim => {
+                const d = p.dimensions?.find(d => d.dimension === dim);
                 const score = d ? d.score : 0;
                 const max = d ? d.maxScore : 1;
                 const pct = max > 0 ? (score / max) * 100 : 0;
@@ -380,23 +301,17 @@ const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
 
                 return (
                   <div key={dim} className="flex items-center gap-2">
-                    <span className={`text-[10px] w-7 ${colorInfo.text}`}>
-                      {dim}
-                    </span>
+                    <span className={`text-[10px] w-7 ${colorInfo.text}`}>{dim}</span>
                     <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${isWinner ? 'ring-1 ring-white/30' : ''}`}
                         style={{
                           width: `${pct}%`,
-                          backgroundColor: isWinner
-                            ? colorInfo.stroke
-                            : 'rgba(255,255,255,0.3)',
+                          backgroundColor: isWinner ? colorInfo.stroke : 'rgba(255,255,255,0.3)',
                         }}
                       />
                     </div>
-                    <span
-                      className={`text-[10px] w-10 text-right ${isWinner ? 'text-white font-medium' : 'text-gray-500'}`}
-                    >
+                    <span className={`text-[10px] w-10 text-right ${isWinner ? 'text-white font-medium' : 'text-gray-500'}`}>
                       {score}/{max}
                       {isWinner && ' 👑'}
                     </span>

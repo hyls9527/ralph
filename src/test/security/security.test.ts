@@ -16,19 +16,19 @@ describe('Security - XSS Prevention', () => {
   describe('escapeHtml', () => {
     it('should escape < and >', () => {
       expect(escapeHtml('<script>alert(1)</script>')).toBe(
-        '&lt;script&gt;alert(1)&lt;&#x2F;script&gt;',
+        '&lt;script&gt;alert(1)&lt;&#x2F;script&gt;'
       );
     });
 
     it('should escape double quotes', () => {
       expect(escapeHtml('test"onmouseover="alert(1)')).toBe(
-        'test&quot;onmouseover=&quot;alert(1)',
+        'test&quot;onmouseover=&quot;alert(1)'
       );
     });
 
     it('should escape single quotes', () => {
       expect(escapeHtml("test'onerror='alert(1)")).toBe(
-        'test&#x27;onerror=&#x27;alert(1)',
+        'test&#x27;onerror=&#x27;alert(1)'
       );
     });
 

@@ -12,10 +12,7 @@ interface SearchHistoryProps {
   isLight: boolean;
 }
 
-const SearchHistory: React.FC<SearchHistoryProps> = ({
-  onReSearch,
-  isLight,
-}) => {
+const SearchHistory: React.FC<SearchHistoryProps> = ({ onReSearch, isLight }) => {
   const { t } = useI18n();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -28,18 +25,14 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
       const data = await tauri.getSearchHistory();
       setHistory(data);
     } catch (error) {
-      alert(
-        t('loadHistoryFailed') +
-          ': ' +
-          (error instanceof Error ? error.message : String(error)),
-      );
+      alert(t('loadHistoryFailed') + ': ' + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }
   }, [showHistory, history.length]);
 
   const toggleHistory = useCallback(() => {
-    setShowHistory((prev) => {
+    setShowHistory(prev => {
       if (!prev) {
         loadHistory();
       }
@@ -52,11 +45,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
       await tauri.clearSearchHistory();
       setHistory([]);
     } catch (error) {
-      alert(
-        t('clearHistoryFailed') +
-          ': ' +
-          (error instanceof Error ? error.message : String(error)),
-      );
+      alert(t('clearHistoryFailed') + ': ' + (error instanceof Error ? error.message : String(error)));
     }
   }, []);
 
@@ -69,9 +58,9 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
       if (diffMins < 1) return t('justNow');
-      if (diffMins < 60) return t('minsAgo', { n: diffMins });
-      if (diffHours < 24) return t('hoursAgo', { n: diffHours });
-      if (diffDays < 7) return t('daysAgo', { n: diffDays });
+    if (diffMins < 60) return t('minsAgo', { n: diffMins });
+    if (diffHours < 24) return t('hoursAgo', { n: diffHours });
+    if (diffDays < 7) return t('daysAgo', { n: diffDays });
       return date.toLocaleDateString('zh-CN');
     } catch {
       return '';
@@ -94,17 +83,11 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
   }
 
   return (
-    <div
-      className={`rounded-xl p-4 mb-4 border animate-fade-in ${
-        isLight
-          ? 'bg-gray-100/80 border-gray-200'
-          : 'bg-gray-900/80 border-gray-700'
-      }`}
-    >
+    <div className={`rounded-xl p-4 mb-4 border animate-fade-in ${
+      isLight ? 'bg-gray-100/80 border-gray-200' : 'bg-gray-900/80 border-gray-700'
+    }`}>
       <div className="flex items-center justify-between mb-3">
-        <h3
-          className={`text-sm font-semibold ${isLight ? 'text-gray-700' : 'text-gray-300'}`}
-        >
+        <h3 className={`text-sm font-semibold ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
           {t('searchHistory')} ({history.length})
         </h3>
         <div className="flex items-center gap-2">
@@ -126,15 +109,11 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
       </div>
 
       {loading ? (
-        <div
-          className={`text-center py-4 text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}
-        >
+        <div className={`text-center py-4 text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
           {t('loadingHistory')}
         </div>
       ) : history.length === 0 ? (
-        <div
-          className={`text-center py-4 text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}
-        >
+        <div className={`text-center py-4 text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
           {t('noHistory')}
         </div>
       ) : (
@@ -150,28 +129,14 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
               }`}
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <svg
-                  className={`w-3.5 h-3.5 flex-shrink-0 ${isLight ? 'text-gray-400' : 'text-gray-400'}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
+                <svg className={`w-3.5 h-3.5 flex-shrink-0 ${isLight ? 'text-gray-400' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span
-                  className={`truncate font-medium ${isLight ? 'text-gray-700' : 'text-gray-300'}`}
-                >
+                <span className={`truncate font-medium ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
                   {item.keyword}
                 </span>
               </div>
-              <div
-                className={`flex items-center gap-2 flex-shrink-0 ${isLight ? 'text-gray-400' : 'text-gray-400'}`}
-              >
+              <div className={`flex items-center gap-2 flex-shrink-0 ${isLight ? 'text-gray-400' : 'text-gray-400'}`}>
                 <span className="text-xs">{formatTime(item.timestamp)}</span>
               </div>
             </button>

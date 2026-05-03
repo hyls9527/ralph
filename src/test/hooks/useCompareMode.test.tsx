@@ -10,11 +10,7 @@ vi.mock('../../stores/slices/uiSlice', () => ({
 
 const mockedUseUiStore = vi.mocked(useUiStore);
 
-function TestHarness({
-  onResult,
-}: {
-  onResult: (result: ReturnType<typeof useCompareMode>) => void;
-}) {
+function TestHarness({ onResult }: { onResult: (result: ReturnType<typeof useCompareMode>) => void }) {
   const result = useCompareMode();
   React.useEffect(() => {
     onResult(result);
@@ -51,28 +47,18 @@ describe('useCompareMode', () => {
       setSelectedDetailProject: vi.fn(),
     };
 
-    mockedUseUiStore.mockImplementation(
-      (selector?: (s: UIState) => unknown) => {
-        if (selector) {
-          return selector(mockState);
-        }
-        return mockState;
-      },
-    );
+    mockedUseUiStore.mockImplementation((selector?: (s: UIState) => unknown) => {
+      if (selector) {
+        return selector(mockState);
+      }
+      return mockState;
+    });
   });
 
   function renderHook() {
-    render(
-      <TestHarness
-        onResult={(r) => {
-          lastResult = r;
-        }}
-      />,
-    );
+    render(<TestHarness onResult={(r) => { lastResult = r; }} />);
     return {
-      get result() {
-        return lastResult!;
-      },
+      get result() { return lastResult!; },
     };
   }
 

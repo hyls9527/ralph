@@ -15,7 +15,7 @@ describe('ErrorFallback', () => {
 
   it('有 onRetry 时渲染重试按钮', () => {
     const html = renderToString(
-      <ErrorFallback error="Error" onRetry={vi.fn()} />,
+      <ErrorFallback error="Error" onRetry={vi.fn()} />
     );
     expect(html).toContain('重试');
   });

@@ -19,16 +19,7 @@ export interface FilterState {
   resetFilters: () => void;
 }
 
-const DEFAULT_FILTERS: Omit<
-  FilterState,
-  | 'setSortBy'
-  | 'setSortOrder'
-  | 'setTrackFilter'
-  | 'setLanguageFilter'
-  | 'setMinScore'
-  | 'setMinStars'
-  | 'resetFilters'
-> = {
+const DEFAULT_FILTERS: Omit<FilterState, 'setSortBy' | 'setSortOrder' | 'setTrackFilter' | 'setLanguageFilter' | 'setMinScore' | 'setMinStars' | 'resetFilters'> = {
   sortBy: 'recommendationIndex',
   sortOrder: 'desc',
   trackFilter: 'all',
@@ -54,8 +45,8 @@ export const useFilterStore = create<FilterState>()(
     {
       name: 'ralph-filters-v3',
       version: 4,
-    },
-  ),
+    }
+  )
 );
 
 export function useFilterSelector() {
@@ -67,6 +58,6 @@ export function useFilterSelector() {
       languageFilter: state.languageFilter,
       minScore: state.minScore,
       minStars: state.minStars,
-    })),
+    }))
   );
 }

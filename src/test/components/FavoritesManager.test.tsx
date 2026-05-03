@@ -60,7 +60,7 @@ describe('FavoritesManager', () => {
 
   it('组件渲染不崩溃', () => {
     expect(() =>
-      renderToString(<FavoritesManager isLight={false} />),
+      renderToString(<FavoritesManager isLight={false} />)
     ).not.toThrow();
   });
 });

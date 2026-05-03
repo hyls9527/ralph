@@ -11,9 +11,9 @@ import {
 import type { DimensionWeights } from '../types';
 
 export function useFilteredResults(dimensionWeights?: DimensionWeights) {
-  const results = useAppStore((s) => s.results);
+  const results = useAppStore(s => s.results);
   const filters = useFilterSelector();
-  const currentPage = useUiStore((s) => s.currentPage);
+  const currentPage = useUiStore(s => s.currentPage);
 
   const weightedResults = useMemo(() => {
     if (!dimensionWeights) return results;
@@ -22,15 +22,7 @@ export function useFilteredResults(dimensionWeights?: DimensionWeights) {
 
   const filteredResults = useMemo(
     () => filterAndSort(weightedResults, filters),
-    [
-      weightedResults,
-      filters.sortBy,
-      filters.sortOrder,
-      filters.trackFilter,
-      filters.languageFilter,
-      filters.minScore,
-      filters.minStars,
-    ],
+    [weightedResults, filters.sortBy, filters.sortOrder, filters.trackFilter, filters.languageFilter, filters.minScore, filters.minStars],
   );
 
   const pagination = useMemo(
