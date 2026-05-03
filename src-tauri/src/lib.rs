@@ -10,6 +10,7 @@ use ralph_core::types::*;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use tauri::Emitter;
+use tokio::sync::Semaphore;
 
 /// 安全的Mutex锁辅助函数
 /// 处理poisoned mutex情况，避免应用崩溃
@@ -205,83 +206,86 @@ async fn batch_evaluate(
     let total_repos = repos.len();
 
     let concurrency = 5;
+    let semaphore = Arc::new(Semaphore::new(concurrency));
+    let mut handles = tokio::task::JoinSet::new();
     let mut results = Vec::new();
-    let mut processed = 0;
-    let mut skipped = 0;
+    let mut processed = 0usize;
+    let mut skipped = 0usize;
 
-    for chunk in repos.chunks(concurrency) {
+    for repo in repos {
         if state.batch_cancel.load(Ordering::SeqCst) {
+            handles.abort_all();
             let _ = safe_db_op(&state, |db| {
                 db.update_batch_session(&session_id, processed, results.len(), skipped, "paused")
             });
             return Err("batch cancelled".to_string());
         }
 
-        let mut handles = tokio::task::JoinSet::new();
-        for repo in chunk {
-            if state.batch_cancel.load(Ordering::SeqCst) {
-                break;
-            }
-            let gh = github_client.clone();
-            let r = repo.clone();
-            let tc = total_repos;
-            handles.spawn(async move { evaluate_single_repo(&gh, &r, tc).await });
+        let permit = semaphore.clone().acquire_owned().await.map_err(|e| e.to_string())?;
+        let gh = github_client.clone();
+        let r = repo.clone();
+        let tc = total_repos;
+
+        handles.spawn(async move {
+            let result = evaluate_single_repo(&gh, &r, tc).await;
+            drop(permit);
+            result
+        });
+    }
+
+    while let Some(task_result) = handles.join_next().await {
+        if state.batch_cancel.load(Ordering::SeqCst) {
+            handles.abort_all();
+            let _ = safe_db_op(&state, |db| {
+                db.update_batch_session(&session_id, processed, results.len(), skipped, "paused")
+            });
+            return Err("batch cancelled".to_string());
         }
 
-        while let Some(task_result) = handles.join_next().await {
-            if state.batch_cancel.load(Ordering::SeqCst) {
-                handles.abort_all();
-                let _ = safe_db_op(&state, |db| {
-                    db.update_batch_session(&session_id, processed, results.len(), skipped, "paused")
-                });
-                return Err("batch cancelled".to_string());
+        match task_result {
+            Ok(Ok(EvalStatus::Skipped)) => {
+                skipped += 1;
+                processed += 1;
             }
+            Ok(Ok(EvalStatus::Evaluated(report))) => {
+                let track_pass = match report.track.as_str() {
+                    "neglected" => report.neglect_index >= 5.0,
+                    "high-star" => report.value_density.unwrap_or(1.0) >= 0.6,
+                    "steady" => report.steady_state.unwrap_or(1.0) >= 0.4,
+                    _ => true,
+                };
 
-            match task_result {
-                Ok(Ok(EvalStatus::Skipped)) => {
-                    skipped += 1;
-                    processed += 1;
-                }
-                Ok(Ok(EvalStatus::Evaluated(report))) => {
-                    let track_pass = match report.track.as_str() {
-                        "neglected" => report.neglect_index >= 5.0,
-                        "high-star" => report.value_density.unwrap_or(1.0) >= 0.6,
-                        "steady" => report.steady_state.unwrap_or(1.0) >= 0.4,
-                        _ => true,
-                    };
+                let _ = safe_db_op(&state, |db| db.cache_evaluation(&report));
+                processed += 1;
 
-                    let _ = safe_db_op(&state, |db| db.cache_evaluation(&report));
-                    processed += 1;
+                let repo_status = if track_pass && report.total_score >= 73.0 && report.veto_flags.is_empty() {
+                    results.push(serde_json::to_value(&report).unwrap_or_default());
+                    "evaluated_pass"
+                } else {
+                    "evaluated_fail"
+                };
 
-                    let repo_status = if track_pass && report.total_score >= 73.0 && report.veto_flags.is_empty() {
-                        results.push(serde_json::to_value(&report).unwrap_or_default());
-                        "evaluated_pass"
-                    } else {
-                        "evaluated_fail"
-                    };
+                let _ = safe_db_op(&state, |db| {
+                    db.mark_batch_repo_processed(&session_id, &report.repo.full_name, repo_status).ok();
+                    db.update_batch_session(&session_id, processed, results.len(), skipped, "running")
+                });
 
-                    let _ = safe_db_op(&state, |db| {
-                        db.mark_batch_repo_processed(&session_id, &report.repo.full_name, repo_status).ok();
-                        db.update_batch_session(&session_id, processed, results.len(), skipped, "running")
-                    });
-
-                    let _ = app_handle.emit("batch_progress", serde_json::json!({
-                        "processed": processed,
-                        "total": total_repos,
-                        "evaluated": results.len(),
-                        "skipped": skipped,
-                        "currentRepo": report.repo.full_name,
-                        "sessionId": session_id,
-                    }));
-                }
-                Ok(Err(e)) => {
-                    eprintln!("[batch] eval error: {}", e);
-                    processed += 1;
-                }
-                Err(join_err) => {
-                    eprintln!("[batch] task panic: {}", join_err);
-                    processed += 1;
-                }
+                let _ = app_handle.emit("batch_progress", serde_json::json!({
+                    "processed": processed,
+                    "total": total_repos,
+                    "evaluated": results.len(),
+                    "skipped": skipped,
+                    "currentRepo": report.repo.full_name,
+                    "sessionId": session_id,
+                }));
+            }
+            Ok(Err(e)) => {
+                eprintln!("[batch] eval error: {}", e);
+                processed += 1;
+            }
+            Err(join_err) => {
+                eprintln!("[batch] task panic: {}", join_err);
+                processed += 1;
             }
         }
     }
