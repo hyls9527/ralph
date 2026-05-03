@@ -1,0 +1,8 @@
+target/
+dist/
+node_modules/
+*.pdb
+src-tauri/gen/
+e2e/test-output.txt
+vitest-err.txt
+vitest-out.txt
