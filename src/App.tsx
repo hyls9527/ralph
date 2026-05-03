@@ -6,6 +6,7 @@ import ResultsSkeleton from './components/ResultsSkeleton';
 import OnboardingGuide from './components/OnboardingGuide';
 import ResultCard from './components/ResultCard';
 import VirtualList from './components/VirtualList';
+import StatsDashboard from './components/StatsDashboard';
 import { Header } from './components/layout/Header';
 import { ErrorFallback } from './components/layout/ErrorFallback';
 import { EmptyState } from './components/features/EmptyState';
@@ -21,7 +22,10 @@ import { useFavoriteSelector } from './stores/slices/favoriteSlice';
 import { useUiStore } from './stores/slices/uiSlice';
 import { useFilterSelector, useFilterStore } from './stores/slices/filterSlice';
 import { initTelemetry, useTelemetry } from './lib/telemetry';
-import { t } from './i18n';
+import { useI18n } from './i18n';
+import { listen } from '@tauri-apps/api/event';
+import type { UnlistenFn } from '@tauri-apps/api/event';
+import type { BatchSession } from './services/tauri';
 
 // 🚀 代码分割 - 懒加载非关键组件（改善首屏加载 40-50%）
 const ComparisonPanel = lazy(() => import('./components/ComparisonPanel'));
@@ -33,11 +37,10 @@ const PDFExport = lazy(() => import('./components/PDFExport'));
 const TrendChart = lazy(() => import('./components/TrendChart'));
 const TrendingDiscovery = lazy(() => import('./components/TrendingDiscovery'));
 
-// 懒加载组件的统一 Loading 状态
 const LazyLoadingFallback = () => (
   <div className="flex items-center justify-center p-8">
     <LoadingSpinner />
-    <span className="ml-3 text-gray-500 dark:text-gray-400">加载中...</span>
+    <span className="ml-3 text-gray-500 dark:text-gray-400">Loading...</span>
   </div>
 );
 import type { DimensionWeights, ProjectRecommendation } from './types';
@@ -47,10 +50,14 @@ import { tauri } from './services/tauri';
 function App() {
   const { results, query, loading, setToken, setLoading, setSearchResults } = useAppStore();
   const [error, setError] = useState<string | null>(null);
+  const [batchSessions, setBatchSessions] = useState<BatchSession[]>([]);
+  const [batchProgress, setBatchProgress] = useState<{ processed: number; total: number; currentRepo: string } | null>(null);
+  const [resumingSessionId, setResumingSessionId] = useState<string | null>(null);
   const searchBarRef = useRef<SearchBarHandle>(null);
 
   // Telemetry 初始化
   const telemetry = useTelemetry();
+  const { t } = useI18n();
   useEffect(() => {
     initTelemetry({ enabled: true, debugMode: false, privacyMode: 'full' });
     telemetry.trackView('home', { source: 'app_init' });
@@ -95,6 +102,37 @@ function App() {
       escapeStack.unregister('trending');
     }
   }, [showTrending, setShowTrending]);
+
+  useEffect(() => {
+    if (showSettings) {
+      tauri.getBatchSessions().then(setBatchSessions).catch(() => {});
+    }
+  }, [showSettings]);
+
+  useEffect(() => {
+    let unlisten: UnlistenFn | undefined;
+    (async () => {
+      try {
+        unlisten = await listen<{ processed: number; total: number; currentRepo: string; sessionId: string }>(
+          'batch_progress',
+          (event) => {
+            setBatchProgress({
+              processed: event.payload.processed,
+              total: event.payload.total,
+              currentRepo: event.payload.currentRepo,
+            });
+            setResumingSessionId(event.payload.sessionId);
+          }
+        );
+      } catch {
+        // non-critical
+      }
+    })();
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
   const selectedDetailProject = useUiStore(s => s.selectedDetailProject);
   const setSelectedDetailProject = useUiStore(s => s.setSelectedDetailProject);
   const setCurrentPage = useUiStore(s => s.setCurrentPage);
@@ -105,6 +143,7 @@ function App() {
 
   // Local state for settings and weights (kept in App for now)
   const [settingsToken, setSettingsToken] = useState('');
+  const [showStats, setShowStats] = useState(false);
   const [dimensionWeights, setDimensionWeights] = useState<DimensionWeights>(() => {
     const saved = localStorage.getItem('ralph-dimensionWeights');
     return saved ? JSON.parse(saved) : defaultDimensionWeights;
@@ -136,7 +175,7 @@ function App() {
   });
 
   const handleEvaluateFromTrending = useCallback(async (repo: ProjectRecommendation) => {
-    setLoading({ phase: 'searching', message: `正在评估 ${repo.repo.fullName}...` });
+    setLoading({ phase: 'searching', message: t('evaluatingProject', { name: repo.repo.fullName }) });
     try {
       const response = await tauri.searchAndEvaluate(`repo:${repo.repo.fullName}`);
       if (response.results.length > 0) {
@@ -144,7 +183,7 @@ function App() {
         setShowTrending(false);
       }
     } catch (error) {
-      setLoading({ phase: 'error', message: `评估失败: ${String(error)}` });
+      setLoading({ phase: 'error', message: `${t('evaluateFailed')}: ${String(error)}` });
     }
   }, [setLoading, setSearchResults]);
 
@@ -163,17 +202,17 @@ function App() {
   const runBatch = async () => {
     const countInput = document.getElementById('batchCount') as HTMLInputElement;
     const count = parseInt(countInput?.value || '30');
-    if (isNaN(count) || count < 10 || count > 100) { setError('批量评定数量需在 10-100 之间'); return; }
-    if (!query.trim()) { setError('请先进行搜索再启动批量评定'); return; }
+    if (isNaN(count) || count < 10 || count > 100) { setError(t('batchCountRange')); return; }
+    if (!query.trim()) { setError(t('searchFirst')); return; }
     const startTime = Date.now();
-    setLoading({ phase: 'evaluating', message: `正在批量评定 ${count} 个项目...` });
+    setLoading({ phase: 'evaluating', message: t('batchEvaluating', { count }) });
     try {
       const response = await tauri.batchEvaluate(query.trim(), Math.min(Math.max(count, 10), 100));
       setSearchResults(response.results);
       setShowSettings(false);
       telemetry.trackSearch(query, response.results?.length || 0, Date.now() - startTime);
     } catch (err) {
-      setLoading({ phase: 'error', message: `批量评定失败: ${String(err)}` });
+      setLoading({ phase: 'error', message: `${t('batchFailed')}: ${String(err)}` });
       telemetry.trackError({
         errorType: 'api',
         message: String(err),
@@ -181,6 +220,28 @@ function App() {
         recoverable: true,
         userAction: 'batch_evaluate',
       });
+    }
+  };
+
+  const resumeBatch = async (sessionId: string) => {
+    setLoading({ phase: 'evaluating', message: t('resumingBatch') });
+    setBatchProgress(null);
+    try {
+      const response = await tauri.resumeBatch(sessionId);
+      setSearchResults(response.results);
+      setShowSettings(false);
+      setBatchSessions(prev => prev.filter(s => s.sessionId !== sessionId));
+    } catch (err) {
+      setLoading({ phase: 'error', message: t('resumeFailed', { error: String(err) }) });
+    }
+  };
+
+  const deleteBatchSessionHandler = async (sessionId: string) => {
+    try {
+      await tauri.deleteBatchSession(sessionId);
+      setBatchSessions(prev => prev.filter(s => s.sessionId !== sessionId));
+    } catch (err) {
+      console.error('Failed to delete batch session:', err);
     }
   };
 
@@ -211,7 +272,25 @@ function App() {
             <SearchHistory onReSearch={handleReSearch} isLight={!isDark} />
             <FavoritesManager isLight={!isDark} />
           </Suspense>
+          <button
+            onClick={() => setShowStats(!showStats)}
+            className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${
+              showStats
+                ? 'bg-violet-500/20 border-violet-500/40 text-violet-300'
+                : !isDark ? 'border-gray-300 text-gray-500 hover:text-gray-700' : 'border-gray-700 text-gray-400 hover:text-gray-300'
+            }`}
+          >
+            📊 {t('stats') || '统计'}
+          </button>
         </div>
+
+        {showStats && (
+          <div className="mb-6 animate-fade-in">
+            <Suspense fallback={<LazyLoadingFallback />}>
+              <StatsDashboard />
+            </Suspense>
+          </div>
+        )}
 
         {showTrending && (
           <div className="mb-6 animate-fade-in">
@@ -232,7 +311,7 @@ function App() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
               <p className={`text-sm font-medium flex-1 ${!isDark ? 'text-gray-900' : 'text-gray-200'}`}>
-                {loading.phase === 'searching' ? '正在搜索 GitHub 项目...' : loading.phase === 'evaluating' ? '正在进行六维评估...' : '处理中...'}
+                {loading.phase === 'searching' ? t('searching') : loading.phase === 'evaluating' ? t('evaluating') : t('loading')}
               </p>
               {loading.phase === 'evaluating' && (
                 <button
@@ -250,7 +329,7 @@ function App() {
                       : 'border-rose-700 text-rose-400 hover:bg-rose-900/30'
                   }`}
                 >
-                  取消评定
+                  {t('cancelEvaluation')}
                 </button>
               )}
             </div>
@@ -259,7 +338,7 @@ function App() {
 
         {compareMode && selectedProjectsList.length > 0 && (
           <Suspense fallback={<LazyLoadingFallback />}>
-            <ComparisonPanel projects={selectedProjectsList} onExit={toggleCompareMode} />
+            <ComparisonPanel projects={selectedProjectsList} onExit={toggleCompareMode} onRemoveProject={toggleProjectSelection} />
           </Suspense>
         )}
         {results.length > 0 && (
@@ -273,9 +352,9 @@ function App() {
             <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
               <div className="flex items-center gap-3">
                 <h2 className={`text-sm font-medium ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-                  找到 <span className="text-violet-400">{filteredResults.length}</span> / {results.length} 个项目
+                  {t('foundCount', { filtered: filteredResults.length, total: results.length })}
                 </h2>
-                {hasActiveFilters && <button onClick={resetFilters} className="text-xs text-amber-400 hover:text-amber-300">重置筛选</button>}
+                {hasActiveFilters && <button onClick={resetFilters} className="text-xs text-amber-400 hover:text-amber-300">{t('resetFiltersBtn')}</button>}
               </div>
               <div className="flex items-center gap-2">
                 <Suspense fallback={<LazyLoadingFallback />}>
@@ -286,11 +365,11 @@ function App() {
                 </Suspense>
                 <button onClick={() => useUiStore.getState().setCompareMode(!compareMode)}
                   className={`text-xs px-2.5 py-1 rounded border ${compareMode ? 'bg-violet-500/20 border-violet-500/40 text-violet-300' : !isDark ? 'border-gray-300 text-gray-500 hover:text-gray-700' : 'border-gray-700 text-gray-400 hover:text-gray-300'}`}>
-                  对比 ({selectedProjects.length})
+                  {t('compareCount', { count: selectedProjects.length })}
                 </button>
                 <button onClick={() => setShowFilters(!showFilters)}
                   className={`text-xs px-2.5 py-1 rounded border ${showFilters ? 'bg-violet-500/20 border-violet-500/40 text-violet-300' : !isDark ? 'border-gray-300 text-gray-500 hover:text-gray-700' : 'border-gray-700 text-gray-400 hover:text-gray-300'}`}>
-                  筛选 {hasActiveFilters ? '✓' : ''}
+                  {showFilters ? t('filterActiveBtn') : t('filterBtn')}
                 </button>
               </div>
             </div>
@@ -300,7 +379,7 @@ function App() {
               <div
                 className={`rounded-xl p-4 mb-4 border animate-fade-in ${!isDark ? 'bg-gray-100/80 border-gray-200' : 'bg-gray-900/80 border-gray-700'}`}
                 role="region"
-                aria-label="筛选面板"
+                aria-label={t('filterPanel')}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
                     setShowFilters(false);
@@ -310,35 +389,35 @@ function App() {
               >
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
-                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>轨道</label>
+                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('trackLabel')}</label>
                     <select value={filters.trackFilter} onChange={e => useFilterStore.getState().setTrackFilter(e.target.value as any)}
                       className={`w-full rounded-lg px-2 py-1.5 text-xs border focus:outline-none focus:border-violet-500 ${!isDark ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-                      <option value="all">全部</option><option value="neglected">被忽视</option><option value="high-star">高星</option><option value="steady">稳态</option>
+                      <option value="all">{t('total')}</option><option value="neglected">{t('neglected')}</option><option value="high-star">{t('highStar')}</option><option value="steady">{t('steady')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>语言</label>
+                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('language')}</label>
                     <select value={filters.languageFilter} onChange={e => useFilterStore.getState().setLanguageFilter(e.target.value)}
                       className={`w-full rounded-lg px-2 py-1.5 text-xs border focus:outline-none focus:border-violet-500 ${!isDark ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-                      <option value="all">全部</option>{languages.map(l => <option key={l} value={l}>{l}</option>)}
+                      <option value="all">{t('allLanguages')}</option>{languages.map(l => <option key={l} value={l}>{l}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>最低评分</label>
+                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('minScore')}</label>
                     <input type="range" min={0} max={105} value={filters.minScore} onChange={e => useFilterStore.getState().setMinScore(Number(e.target.value))} className="w-full accent-violet-500" />
                     <span className={`text-xs ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{filters.minScore}</span>
                   </div>
                   <div>
-                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>最低 Star</label>
+                    <label className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('minStars')}</label>
                     <input type="range" min={0} max={100000} step={100} value={filters.minStars} onChange={e => useFilterStore.getState().setMinStars(Number(e.target.value))} className="w-full accent-violet-500" />
                     <span className={`text-xs ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{filters.minStars.toLocaleString()}</span>
                   </div>
                 </div>
                 <div className={`mt-3 pt-3 border-t flex items-center gap-2 ${!isDark ? 'border-gray-200' : 'border-gray-700'}`}>
-                  <span className={`text-xs ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>排序:</span>
+                  <span className={`text-xs ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('sort')}:</span>
                   <select value={filters.sortBy} onChange={e => useFilterStore.getState().setSortBy(e.target.value as any)}
                     className={`rounded-lg px-2 py-1.5 text-xs border focus:outline-none focus:border-violet-500 ${!isDark ? 'bg-white border-gray-300 text-gray-900' : 'bg-gray-800 border-gray-700 text-gray-300'}`}>
-                    <option value="recommendationIndex">推荐指数</option><option value="score">总评分</option><option value="stars">Star 数</option>
+                    <option value="recommendationIndex">{t('recommendationIndex')}</option><option value="score">{t('totalScoreSort')}</option><option value="stars">{t('starCount')}</option>
                   </select>
                   <button onClick={() => useFilterStore.getState().setSortOrder(filters.sortOrder === 'asc' ? 'desc' : 'asc')}
                     className={`text-xs px-2 py-1 rounded-lg border ${!isDark ? 'bg-white border-gray-300 text-gray-600' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
@@ -376,13 +455,13 @@ function App() {
             {totalPages > 1 && filteredResults.length <= 30 && (
               <div className="flex items-center justify-center gap-2 mt-6">
                 <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1}
-                  className={`text-xs px-2 py-1 rounded border disabled:opacity-40 ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}>上一页</button>
+                  className={`text-xs px-2 py-1 rounded border disabled:opacity-40 ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}>{t('prevPage')}</button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <button key={page} onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 text-xs rounded-lg transition-colors ${page === currentPage ? 'bg-violet-600 text-white' : !isDark ? 'text-gray-600 hover:bg-gray-100' : 'text-gray-400 hover:bg-gray-800'}`}>{page}</button>
                 ))}
                 <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages}
-                  className={`text-xs px-2 py-1 rounded border disabled:opacity-40 ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}>下一页</button>
+                  className={`text-xs px-2 py-1 rounded border disabled:opacity-40 ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}>{t('nextPage')}</button>
               </div>
             )}
           </div>
@@ -404,15 +483,15 @@ function App() {
           setShowSettings(open);
           if (!open) escapeStack.unregister('settings');
         }}
-        title="设置"
-        description="配置 GitHub Token、批量评定参数和自定义评估权重"
+        title={t('settings')}
+        description={t('settingsDesc')}
         closeOnEscape={true}
         closeOnClickOutside={true}
       >
         <div className="space-y-4">
           <div>
             <label htmlFor="settings-github-token" className={`text-xs block mb-1 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-              GITHUB_TOKEN
+              {t('githubToken')}
             </label>
             <input
               id="settings-github-token"
@@ -425,14 +504,14 @@ function App() {
           </div>
           <div className="flex gap-2">
             <button onClick={saveSettings} className="flex-1 text-sm py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-500 focus-visible:ring-2 focus-visible:ring-violet-400">
-              保存
+              {t('save')}
             </button>
             <button onClick={clearCache} className={`text-sm px-4 py-2 rounded-lg border ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'} focus-visible:ring-2 focus-visible:ring-violet-400`}>
-              清理缓存
+              {t('clearCache')}
             </button>
           </div>
           <div className={`border-t pt-4 ${!isDark ? 'border-gray-200' : 'border-gray-700'}`}>
-            <h4 className={`text-sm font-semibold mb-2 ${!isDark ? 'text-gray-700' : 'text-gray-300'}`}>批量评定</h4>
+            <h4 className={`text-sm font-semibold mb-2 ${!isDark ? 'text-gray-700' : 'text-gray-300'}`}>{t('batchEvaluate')}</h4>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -443,12 +522,57 @@ function App() {
                 className={`w-20 px-2 py-1.5 text-sm rounded-lg border ${!isDark ? 'bg-gray-100 border-gray-300 text-gray-900' : 'bg-gray-800 border-gray-700 text-gray-100'} focus:outline-none focus:border-violet-500`}
               />
               <button onClick={runBatch} className="flex-1 text-sm py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-400">
-                启动批量评定
+                {t('startBatch')}
               </button>
             </div>
+            {batchProgress && (
+              <div className="mt-2 p-2 bg-gray-800 rounded-lg">
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+                  <span>{t('batchProgress')}</span>
+                  <span>{batchProgress.processed}/{batchProgress.total}</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                  <div
+                    className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
+                    style={{ width: `${batchProgress.total > 0 ? (batchProgress.processed / batchProgress.total) * 100 : 0}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1 truncate">{batchProgress.currentRepo}</p>
+              </div>
+            )}
+            {batchSessions.length > 0 && (
+              <div className="mt-3">
+                <h5 className="text-xs font-semibold text-amber-400 mb-2">{t('incompleteBatches')}</h5>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {batchSessions.map(session => (
+                    <div key={session.sessionId} className="flex items-center gap-2 p-2 bg-gray-800 rounded-lg">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-300 truncate">{session.query}</p>
+                        <p className="text-xs text-gray-500">
+                          {session.processed}/{session.totalRepos} · {session.status === 'paused' ? t('pausedStatus') : t('inProgressStatus')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => resumeBatch(session.sessionId)}
+                        disabled={resumingSessionId === session.sessionId}
+                        className="px-2 py-1 text-xs bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white rounded transition-colors"
+                      >
+                        {resumingSessionId === session.sessionId ? t('resumingStatus') : t('continueBtn')}
+                      </button>
+                      <button
+                        onClick={() => deleteBatchSessionHandler(session.sessionId)}
+                        className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-400 rounded transition-colors"
+                      >
+                        {t('deleteBtn')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className={`border-t pt-4 ${!isDark ? 'border-gray-200' : 'border-gray-700'}`}>
-            <h4 className={`text-sm font-semibold mb-2 ${!isDark ? 'text-gray-700' : 'text-gray-300'}`}>自定义权重</h4>
+            <h4 className={`text-sm font-semibold mb-2 ${!isDark ? 'text-gray-700' : 'text-gray-300'}`}>{t('customWeights')}</h4>
             <p className={`text-xs mb-3 ${!isDark ? 'text-amber-600' : 'text-amber-400'}`}>
               {t('weightsWarning')}
             </p>
@@ -456,7 +580,7 @@ function App() {
               {Object.entries(dimensionWeights).map(([key, value]) => (
                 <div key={key} className="flex items-center gap-2">
                   <label htmlFor={`weight-${key}`} className={`text-xs w-16 ${!isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-                    {({ quality: '质量', maintenance: '维护', practical: '实用', documentation: '文档', community: '社区', security: '安全' })[key] || key}
+                    {({ quality: t('qualityDim'), maintenance: t('maintenanceDim'), practical: t('practicalDim'), documentation: t('documentationDim'), community: t('communityDim'), security: t('securityDim') })[key] || key}
                   </label>
                   <input
                     type="range"
@@ -472,14 +596,14 @@ function App() {
               ))}
             </div>
             <button onClick={resetWeights} className={`flex-1 text-xs py-2 rounded-lg border mt-3 ${!isDark ? 'border-gray-300 text-gray-600 hover:bg-gray-100' : 'border-gray-700 text-gray-400 hover:bg-gray-800'} focus-visible:ring-2 focus-visible:ring-violet-400`}>
-              恢复默认
+              {t('resetDefault')}
             </button>
           </div>
           <button
             onClick={() => setShowSettings(false)}
             className={`w-full text-sm py-2 ${!isDark ? 'text-gray-500 hover:text-gray-700' : 'text-gray-400 hover:text-gray-300'} focus-visible:ring-2 focus-visible:ring-violet-400`}
           >
-            关闭
+            {t('close')}
           </button>
         </div>
       </AccessibleModal>

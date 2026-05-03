@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface BadgeInfo {
   grade: string;
@@ -33,7 +33,8 @@ const gradeColorMap: Record<string, { bg: string; text: string; border: string }
 };
 
 const BadgeDisplay: React.FC<BadgeDisplayProps> = ({ grade, score, repoFullName, size = 'md' }) => {
-  const [badgeInfo, setBadgeInfo] = useState<BadgeInfo | null>(null);
+  const { t } = useI18n();
+  const [badge, setBadge] = useState<BadgeInfo | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 

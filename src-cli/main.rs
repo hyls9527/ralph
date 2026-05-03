@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use ralph_core::database::Database;
+use ralph_core::discovery::{DiscoveryAgent, DiscoveryConfig, DiscoveryResult};
 use ralph_core::evaluator::Evaluator;
 use ralph_core::github::GitHubClient;
 use ralph_core::types::{EvaluationReport, RepoInfo};
@@ -56,8 +57,31 @@ enum Commands {
     },
     /// 清理缓存
     Clean,
+    /// 自主发现被忽视的宝藏项目
+    Discover {
+        /// 持续运行模式（守护进程）
+        #[arg(long)]
+        daemon: bool,
+        /// 守护模式最大轮次（0=无限）
+        #[arg(long, default_value = "0")]
+        max_rounds: u32,
+        /// 输出格式
+        #[arg(short, long, default_value = "table")]
+        format: String,
+        /// 输出文件路径（JSON 格式）
+        #[arg(short, long)]
+        output: Option<String>,
+    },
     /// 版本信息
     Version,
+    /// 评估指定 GitHub 仓库
+    Evaluate {
+        /// 仓库 owner/name（如 "facebook/react"）
+        repo: String,
+        /// 输出格式
+        #[arg(short, long, default_value = "table")]
+        format: String,
+    },
 }
 
 /// 评估结果统计
@@ -140,7 +164,17 @@ async fn evaluate_repo(
     let cred_disqualified = decision_trail.iter()
         .any(|s| s.step == "声明可信度" && s.before - s.after > 5.0);
 
-    let total_score: f64 = dimensions.iter().map(|d| d.score).sum();
+    let mut total_score: f64 = dimensions.iter().map(|d| d.score).sum();
+
+    let openssf_score = github_client
+        .get_openssf_scorecard(&repo.owner, &repo.name)
+        .await
+        .unwrap_or(None);
+
+    if let Some(ss_score) = openssf_score {
+        Evaluator::apply_openssf_calibration(&mut dimensions, ss_score);
+        total_score = dimensions.iter().map(|d| d.score).sum();
+    }
 
     let mut veto_flags = vec![];
     if cred_disqualified {
@@ -507,6 +541,237 @@ fn clean() {
     }
 }
 
+fn print_discovery_results(results: &[DiscoveryResult]) {
+    println!("{:<45} {:>8} {:>8} {:>8} {:>12}", 
+        "项目", "⭐ Stars", "评分", "等级", "轨道");
+    println!("{}", "-".repeat(90));
+    
+    for r in results {
+        let track_label = match r.report.track.as_str() {
+            "neglected" => "被忽视",
+            "high-star" => "高星",
+            "steady" => "稳态",
+            _ => "未知",
+        };
+        
+        println!("{:<45} {:>8} {:>8.1} {:>8} {:>12}",
+            r.report.repo.full_name,
+            r.report.repo.stargazers_count,
+            r.report.total_score,
+            r.report.grade,
+            track_label
+        );
+    }
+    
+    println!("\n共发现 {} 个项目", results.len());
+}
+
+fn discovery_results_to_json(results: &[DiscoveryResult]) -> String {
+    let json_results: Vec<_> = results.iter()
+        .map(|r| serde_json::json!({
+            "repo": r.report.repo.full_name,
+            "stars": r.report.repo.stargazers_count,
+            "score": r.report.total_score,
+            "grade": r.report.grade,
+            "track": r.report.track,
+            "oneLiner": r.report.one_liner,
+            "discoveryQuery": r.discovery_query,
+            "discoveredAt": r.discovered_at,
+        }))
+        .collect();
+    
+    serde_json::to_string_pretty(&serde_json::json!({
+        "discoveries": json_results,
+        "totalDiscovered": results.len()
+    }))
+    .unwrap_or_default()
+}
+
+async fn discover(
+    daemon: bool,
+    max_rounds: u32,
+    format: &str,
+    output: Option<&str>,
+    token: Option<&str>,
+) {
+    let github_client = GitHubClient::new(token.map(|s| s.to_string()));
+    let config = DiscoveryConfig::default();
+    let agent = DiscoveryAgent::new(github_client, config);
+
+    let db = match get_db() {
+        Ok(db) => db,
+        Err(e) => {
+            eprintln!("❌ 数据库初始化失败: {}", e);
+            return;
+        }
+    };
+
+    if !daemon {
+        println!("🔍 自主发现模式 - 单轮搜索\n");
+        
+        let cached_repos: std::collections::HashSet<String> = db.get_recent_cached(10000)
+            .unwrap_or_default()
+            .into_iter()
+            .map(|r| r.repo.full_name.clone())
+            .collect();
+
+        match agent.run_once(&cached_repos).await {
+            Ok(results) => {
+                for result in &results {
+                    let _ = db.cache_evaluation(&result.report);
+                    let _ = db.save_discovery_result(&result.report, &result.discovery_query);
+                }
+
+                if results.is_empty() {
+                    println!("未发现符合条件的项目。");
+                } else {
+                    match format {
+                        "json" => println!("{}", discovery_results_to_json(&results)),
+                        _ => print_discovery_results(&results),
+                    }
+                }
+
+                if let Some(path) = output {
+                    let json = discovery_results_to_json(&results);
+                    if let Err(e) = fs::write(path, json) {
+                        eprintln!("❌ 写入输出文件失败: {}", e);
+                    } else {
+                        println!("\n💾 结果已保存到: {}", path);
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("❌ 发现失败: {}", e);
+            }
+        }
+    } else {
+        println!("🔄 自主发现模式 - 守护进程");
+        println!("   搜索间隔: {} 分钟", agent.get_status().next_run_at.as_deref().unwrap_or("60"));
+        if max_rounds > 0 {
+            println!("   最大轮次: {}", max_rounds);
+        }
+        println!();
+
+        agent.start();
+        let mut round = 0u32;
+        let mut total_discovered = 0usize;
+
+        while agent.is_running() {
+            round += 1;
+            if max_rounds > 0 && round > max_rounds {
+                break;
+            }
+
+            println!("📍 第 {} 轮搜索...", round);
+            
+            let cached_repos: std::collections::HashSet<String> = db.get_recent_cached(10000)
+                .unwrap_or_default()
+                .into_iter()
+                .map(|r| r.repo.full_name.clone())
+                .collect();
+
+            match agent.run_once(&cached_repos).await {
+                Ok(results) => {
+                    for result in &results {
+                        let _ = db.cache_evaluation(&result.report);
+                        let _ = db.save_discovery_result(&result.report, &result.discovery_query);
+                    }
+                    total_discovered += results.len();
+                    
+                    if results.is_empty() {
+                        println!("   本轮未发现新项目");
+                    } else {
+                        println!("   发现 {} 个新项目 (累计: {})", results.len(), total_discovered);
+                        if format == "table" {
+                            for r in &results {
+                                println!("     ✅ {} (⭐{}, {:.1}分, {})",
+                                    r.report.repo.full_name,
+                                    r.report.repo.stargazers_count,
+                                    r.report.total_score,
+                                    r.report.grade
+                                );
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("   本轮失败: {}", e);
+                }
+            }
+
+            if agent.is_running() && (max_rounds == 0 || round < max_rounds) {
+                let interval = agent.get_status().next_run_at
+                    .and_then(|s| s.parse::<u64>().ok())
+                    .unwrap_or(3600);
+                println!("   等待 {} 秒后开始下一轮...\n", interval);
+                tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
+            }
+        }
+
+        agent.stop();
+        println!("\n🏁 守护进程已停止。共运行 {} 轮，发现 {} 个项目。", round, total_discovered);
+
+        if let Some(path) = output {
+            let all_results = db.get_discovery_results(1000).unwrap_or_default();
+            let json = serde_json::to_string_pretty(&serde_json::json!({
+                "discoveries": all_results,
+                "totalDiscovered": all_results.len(),
+                "totalRounds": round,
+            })).unwrap_or_default();
+            if let Err(e) = fs::write(path, json) {
+                eprintln!("❌ 写入输出文件失败: {}", e);
+            } else {
+                println!("💾 结果已保存到: {}", path);
+            }
+        }
+    }
+}
+
+async fn evaluate(repo_spec: &str, format: &str, token: Option<&str>) {
+    let parts: Vec<&str> = repo_spec.split('/').collect();
+    if parts.len() != 2 {
+        eprintln!("❌ 仓库格式错误，请使用 owner/name 格式（如 facebook/react）");
+        return;
+    }
+
+    let owner = parts[0];
+    let name = parts[1];
+
+    println!("🔍 评估仓库: {}/{}\n", owner, name);
+
+    let github_client = GitHubClient::new(token.map(|s| s.to_string()));
+
+    let repo = match github_client.get_repo(owner, name).await {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("❌ 获取仓库信息失败: {}", e);
+            return;
+        }
+    };
+
+    match evaluate_repo(&repo, &github_client, 1).await {
+        Ok(report) => {
+            let db = match get_db() {
+                Ok(db) => db,
+                Err(e) => {
+                    eprintln!("⚠️ 数据库初始化失败: {}", e);
+                    return;
+                }
+            };
+
+            let _ = db.cache_evaluation(&report);
+
+            match format {
+                "json" => println!("{}", output_json(&[report])),
+                _ => output_table(&[report]),
+            }
+        }
+        Err(e) => {
+            eprintln!("❌ 评估失败: {}", e);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
@@ -527,8 +792,155 @@ async fn main() {
         Commands::Clean => {
             clean();
         }
+        Commands::Discover { daemon, max_rounds, format, output } => {
+            discover(daemon, max_rounds, &format, output.as_deref(), cli.token.as_deref()).await;
+        }
         Commands::Version => {
             println!("ralph-cli v{}", env!("CARGO_PKG_VERSION"));
         }
+        Commands::Evaluate { repo, format } => {
+            evaluate(&repo, &format, cli.token.as_deref()).await;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ralph_core::types::*;
+
+    fn make_test_report(grade: &str, score: f64) -> EvaluationReport {
+        EvaluationReport {
+            repo: RepoInfo {
+                owner: "test".to_string(),
+                name: "repo".to_string(),
+                full_name: "test/repo".to_string(),
+                html_url: "".to_string(),
+                description: None,
+                stargazers_count: 100,
+                forks_count: 10,
+                open_issues_count: 5,
+                language: Some("Rust".to_string()),
+                created_at: "2023-01-01T00:00:00Z".to_string(),
+                updated_at: "2024-12-01T00:00:00Z".to_string(),
+                pushed_at: "2024-12-01T00:00:00Z".to_string(),
+                license: None,
+                size: 5000,
+                has_wiki: false,
+                has_issues_enabled: false,
+                topics: vec![],
+            },
+            one_liner: "".to_string(),
+            track: "steady".to_string(),
+            grade: grade.to_string(),
+            total_score: score,
+            recommendation_index: 50.0,
+            dimensions: vec![],
+            gate_checks: vec![],
+            neglect_index: 3.0,
+            value_density: Some(1.0),
+            steady_state: Some(1.0),
+            trust_badge: TrustBadge {
+                level: 2,
+                l1: L1Badge {
+                    status: "recommended".to_string(),
+                    icon: "✓".to_string(),
+                    label: "推荐".to_string(),
+                    color: "emerald".to_string(),
+                },
+                l2: None,
+            },
+            evidence_level: "L1".to_string(),
+            veto_flags: vec![],
+            confidence_tier: "tier1-core".to_string(),
+            decision_trail: vec![],
+        }
+    }
+
+    #[test]
+    fn test_calculate_mutation_ratio_normal() {
+        let ratio = calculate_mutation_ratio(30);
+        assert!(ratio > 0.0);
+        assert!(ratio < 10.0);
+    }
+
+    #[test]
+    fn test_calculate_mutation_ratio_zero_commits() {
+        let ratio = calculate_mutation_ratio(0);
+        assert_eq!(ratio, 0.0);
+    }
+
+    #[test]
+    fn test_calculate_mutation_ratio_high_activity() {
+        let ratio = calculate_mutation_ratio(100);
+        assert!(ratio > 0.0);
+    }
+
+    #[test]
+    fn test_evaluation_stats_default() {
+        let stats = EvaluationStats::default();
+        assert_eq!(stats.total, 0);
+        assert_eq!(stats.evaluated, 0);
+        assert_eq!(stats.skipped, 0);
+        assert_eq!(stats.s_grade, 0);
+        assert_eq!(stats.a_grade, 0);
+        assert_eq!(stats.b_grade, 0);
+    }
+
+    #[test]
+    fn test_evaluation_stats_update_s_grade() {
+        let mut stats = EvaluationStats::default();
+        let report = make_test_report("S", 95.0);
+        stats.update(&report);
+        assert_eq!(stats.evaluated, 1);
+        assert_eq!(stats.s_grade, 1);
+        assert_eq!(stats.a_grade, 0);
+        assert_eq!(stats.b_grade, 0);
+    }
+
+    #[test]
+    fn test_evaluation_stats_update_a_grade() {
+        let mut stats = EvaluationStats::default();
+        let report = make_test_report("A", 85.0);
+        stats.update(&report);
+        assert_eq!(stats.evaluated, 1);
+        assert_eq!(stats.s_grade, 0);
+        assert_eq!(stats.a_grade, 1);
+        assert_eq!(stats.b_grade, 0);
+    }
+
+    #[test]
+    fn test_evaluation_stats_update_b_grade() {
+        let mut stats = EvaluationStats::default();
+        let report = make_test_report("B", 75.0);
+        stats.update(&report);
+        assert_eq!(stats.evaluated, 1);
+        assert_eq!(stats.s_grade, 0);
+        assert_eq!(stats.a_grade, 0);
+        assert_eq!(stats.b_grade, 1);
+    }
+
+    #[test]
+    fn test_evaluation_stats_update_multiple() {
+        let mut stats = EvaluationStats::default();
+        stats.update(&make_test_report("S", 95.0));
+        stats.update(&make_test_report("A", 85.0));
+        stats.update(&make_test_report("B", 75.0));
+        stats.update(&make_test_report("A", 82.0));
+        assert_eq!(stats.evaluated, 4);
+        assert_eq!(stats.s_grade, 1);
+        assert_eq!(stats.a_grade, 2);
+        assert_eq!(stats.b_grade, 1);
+    }
+
+    #[test]
+    fn test_evaluation_stats_update_x_grade_ignored() {
+        let mut stats = EvaluationStats::default();
+        let report = make_test_report("X", 30.0);
+        stats.update(&report);
+        assert_eq!(stats.evaluated, 1);
+        assert_eq!(stats.s_grade, 0);
+        assert_eq!(stats.a_grade, 0);
+        assert_eq!(stats.b_grade, 0);
     }
 }

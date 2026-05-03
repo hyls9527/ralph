@@ -3,7 +3,7 @@ import type { ProjectRecommendation } from '../types';
 import TrustBadge from './TrustBadge';
 import ConfidenceBadge from './ConfidenceBadge';
 import ReportShare from './ReportShare';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface ResultCardProps {
   project: ProjectRecommendation;
@@ -21,10 +21,13 @@ const areEqual = (prevProps: ResultCardProps, nextProps: ResultCardProps): boole
   );
 };
 
-const trackLabels: Record<string, string> = {
-  neglected: '被忽视',
-  'high-star': '高星',
-  steady: '稳态',
+const getTrackLabel = (track: string): string => {
+  switch (track) {
+    case 'neglected': return t('trackNeglected');
+    case 'high-star': return t('trackHighStar');
+    case 'steady': return t('trackSteady');
+    default: return track;
+  }
 };
 
 const gradeColors: Record<string, string> = {
@@ -214,10 +217,11 @@ const DimensionDrillDown: React.FC<{ dimension: { dimension: string; score: numb
 };
 
 const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavorite, onFavoriteToggle }) => {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const [radarView, setRadarView] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  const { repo, trustBadge, totalScore, grade, track, oneLiner, evidenceLevel, recommendationIndex, dimensions, vetoFlags } = project;
+  const { repo, trustBadge, totalScore, grade, track, oneLiner, evidenceLevel, recommendationIndex, dimensions, vetoFlags, confidenceTier, decisionTrail } = project;
 
   const dimensionColors: Record<string, string> = {
     '质量': 'text-emerald-400',
@@ -231,7 +235,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
   const hasVetoFlags = trustBadge.l2?.gateChecks.some(g => !g.passed);
 
   const handleShare = async () => {
-    const text = t('shareText', { projectName: repo.fullName, score: totalScore.toFixed(1), grade, track: trackLabels[track] || track, url: repo.htmlUrl });
+    const text = t('shareText', { projectName: repo.fullName, score: totalScore.toFixed(1), grade, track: getTrackLabel(track), url: repo.htmlUrl });
     try {
       await navigator.clipboard.writeText(text);
       setShareCopied(true);
@@ -337,7 +341,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
             </span>
           </div>
           <span className="text-xs px-2 py-0.5 bg-gray-700 text-gray-400 rounded">
-            {trackLabels[track]}
+            {getTrackLabel(track)}
           </span>
           <TrackMetricBadge track={track} project={project} />
           <span className="text-xs px-2 py-0.5 bg-gray-700 text-gray-400 rounded">
@@ -346,6 +350,16 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
           <span className="text-xs px-2 py-0.5 bg-violet-900/30 text-violet-300 rounded border border-violet-700/40">
             推荐指数: {recommendationIndex.toFixed(2)}
           </span>
+          {confidenceTier && (
+            <span className={`text-xs px-2 py-0.5 rounded border ${
+              confidenceTier === 'tier1-core' ? 'bg-emerald-900/20 text-emerald-300 border-emerald-500/40' :
+              confidenceTier === 'tier2-extended' ? 'bg-blue-900/20 text-blue-300 border-blue-500/40' :
+              'bg-gray-700 text-gray-400 border-gray-600/40'
+            }`}>
+              {confidenceTier === 'tier1-core' ? '核心置信' :
+               confidenceTier === 'tier2-extended' ? '扩展置信' : '全量置信'}
+            </span>
+          )}
         </div>
 
         {/* 六维评分 — 进度条 / 雷达图切换 */}
@@ -392,6 +406,23 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
 
         {/* 防博弈警告指示器 */}
         <AntiGamingWarning warnings={vetoFlags} />
+
+        {decisionTrail && decisionTrail.length > 0 && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+            <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span>
+              防博弈 {decisionTrail.length} 层处理:
+              {decisionTrail[0]?.before.toFixed(1)} → {decisionTrail[decisionTrail.length - 1]?.after.toFixed(1)}
+            </span>
+            {decisionTrail.some(s => s.after < s.before) && (
+              <span className="text-amber-400">
+                (降分 {decisionTrail.filter(s => s.after < s.before).reduce((acc, s) => acc + (s.before - s.after), 0).toFixed(1)})
+              </span>
+            )}
+          </div>
+        )}
 
         {/* 一句话推荐 */}
         <div className="mt-3 bg-gray-800/50 rounded-lg p-3 border-l-2 border-violet-500">

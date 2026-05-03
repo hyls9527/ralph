@@ -3,12 +3,12 @@ name = "ralph"
 version = "0.8.0"
 description = "GitHub 高质量项目发现与评估工具"
 license = "MIT"
-repository = "https://github.com/yourusername/ralph"
-homepage = "https://github.com/yourusername/ralph#readme"
+repository = "https://github.com/ralph-project/ralph"
+homepage = "https://github.com/ralph-project/ralph#readme"
 readme = "../README.md"
 keywords = ["github", "evaluation", "assessment", "gui", "desktop"]
 categories = ["development-tools", "gui"]
-authors = ["Ralph Team <ralph@example.com>"]
+authors = ["Ralph Team <team@ralph.dev>"]
 edition = "2021"
 rust-version = "1.70"
 
@@ -28,6 +28,7 @@ tauri-plugin-dialog = "2"
 tokio = { version = "1", features = ["rt", "macros", "time"] }
 uuid = { version = "1", features = ["v4"] }
 dirs = "5.0"
+chrono = "0.4"
 
 [dev-dependencies]
 tokio-test = "0.4"

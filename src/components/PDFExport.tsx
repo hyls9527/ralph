@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import type { ProjectRecommendation } from '../types';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface PDFExportProps {
   projects: ProjectRecommendation[];
@@ -24,6 +24,7 @@ function escapeHtml(str: string): string {
 }
 
 const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
+  const { t } = useI18n();
   const exportPDF = useCallback(() => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { tauri } from '../services/tauri';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface ScoreTrendPoint {
   score: number;
@@ -28,7 +28,8 @@ const trackLabels: Record<string, string> = {
 };
 
 const EvaluationHistory: React.FC<EvaluationHistoryProps> = ({ repoFullName, isLight }) => {
-  const [trend, setTrend] = useState<ScoreTrendPoint[]>([]);
+  const { t } = useI18n();
+  const [history, setHistory] = useState<ScoreTrendPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

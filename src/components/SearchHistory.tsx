@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { tauri } from '../services/tauri';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface HistoryItem {
   keyword: string;
@@ -13,6 +13,7 @@ interface SearchHistoryProps {
 }
 
 const SearchHistory: React.FC<SearchHistoryProps> = ({ onReSearch, isLight }) => {
+  const { t } = useI18n();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(false);

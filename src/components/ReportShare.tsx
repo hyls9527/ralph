@@ -70,7 +70,7 @@ ${p.trustBadge ? [
 ---
 
 > 本评估由 [Ralph](https://github.com/ralph-evaluator) 自动生成
-> 三轨覆盖，无盲区。穿透热度噪音，直抵项目品质。
+> 三轨覆盖。穿透热度噪音，直抵项目品质。
 `;
   }, []);
 

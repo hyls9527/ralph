@@ -1,5 +1,5 @@
 import { useTheme } from '../../hooks/useTheme';
-import { t } from '../../i18n';
+import { useI18n } from '../../i18n';
 
 interface EmptyStateProps {
   hasResults: boolean;
@@ -9,6 +9,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ hasResults, hasSearched = false, onClearFilters }: EmptyStateProps) {
   const { isDark } = useTheme();
+  const { t } = useI18n();
   const isLight = !isDark;
 
   if (hasResults) return null;

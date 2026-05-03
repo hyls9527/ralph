@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useFavoriteStore, useFavoriteSelector } from '../stores/slices/favoriteSlice';
 import { tauri } from '../services/tauri';
-import { t } from '../i18n';
+import { useI18n } from '../i18n';
 
 interface FavoriteItem {
   repo: { full_name: string; description?: string; stargazers_count: number };
@@ -17,6 +17,7 @@ interface FavoritesManagerProps {
 }
 
 const FavoritesManager: React.FC<FavoritesManagerProps> = ({ isLight }) => {
+  const { t } = useI18n();
   const { isFavorite, toggleFavorite } = useFavoriteSelector();
   const loadFavorites = useFavoriteStore(s => s.loadFavorites);
   const [favoriteDetails, setFavoriteDetails] = useState<FavoriteItem[]>([]);

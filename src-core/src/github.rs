@@ -186,10 +186,10 @@ impl GitHubClient {
     pub async fn search_repos(&self, query: &str, per_page: u8) -> Result<Vec<RepoInfo>, String> {
         let query = query.trim();
         if query.is_empty() {
-            return Err("搜索关键词不能为空".to_string());
+            return Err("search query cannot be empty".to_string());
         }
         if query.len() > 256 {
-            return Err("搜索关键词过长（最大 256 字符）".to_string());
+            return Err("search query too long (max 256 chars)".to_string());
         }
         let per_page = per_page.clamp(1, 100);
         let url = format!(
@@ -350,6 +350,281 @@ impl GitHubClient {
         self.rate_limit.read()
             .map(|r| r.clone())
             .unwrap_or_default()
+    }
+
+    pub async fn get_star_history(
+        &self,
+        owner: &str,
+        name: &str,
+    ) -> Result<Vec<crate::types::StarHistoryPoint>, String> {
+        let mut all_stars: Vec<crate::types::StarHistoryPoint> = Vec::new();
+        let mut page = 1;
+        let per_page = 100;
+
+        loop {
+            let url = format!(
+                "{}/repos/{}/{}/stargazers?per_page={}&page={}",
+                self.base_url, owner, name, per_page, page
+            );
+
+            let resp = self.build_request(&url)
+                .header("Accept", "application/vnd.github.v3.star+json")
+                .send()
+                .await
+                .map_err(|e| format!("获取Star历史失败: {}", e))?;
+
+            self.update_rate_limit(resp.headers());
+
+            if !resp.status().is_success() {
+                break;
+            }
+
+            let json: serde_json::Value = resp
+                .json()
+                .await
+                .map_err(|e| format!("解析Star历史失败: {}", e))?;
+
+            let items = match json.as_array() {
+                Some(arr) => arr,
+                None => break,
+            };
+
+            if items.is_empty() {
+                break;
+            }
+
+            for item in items {
+                if let Some(starred_at) = item.get("starred_at").and_then(|v| v.as_str()) {
+                    let date = &starred_at[..10];
+                    if let Some(last) = all_stars.last_mut() {
+                        if last.date == date {
+                            last.count += 1;
+                            continue;
+                        }
+                    }
+                    let prev_count = all_stars.last().map(|p| p.count).unwrap_or(0);
+                    all_stars.push(crate::types::StarHistoryPoint {
+                        date: date.to_string(),
+                        count: prev_count + 1,
+                    });
+                }
+            }
+
+            if items.len() < per_page {
+                break;
+            }
+
+            page += 1;
+            sleep(Duration::from_millis(200)).await;
+        }
+
+        Ok(all_stars)
+    }
+
+    pub async fn get_commit_activity(
+        &self,
+        owner: &str,
+        name: &str,
+    ) -> Result<Vec<crate::types::CommitActivityWeek>, String> {
+        let url = format!(
+            "{}/repos/{}/{}/stats/commit_activity",
+            self.base_url, owner, name
+        );
+
+        let resp = self.request_with_retry(&url).await?;
+
+        let json: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| format!("解析提交活动失败: {}", e))?;
+
+        let weeks = match json.as_array() {
+            Some(arr) => arr,
+            None => return Ok(vec![]),
+        };
+
+        let activity: Vec<crate::types::CommitActivityWeek> = weeks
+            .iter()
+            .filter_map(|w| {
+                let week_start = w.get("week").and_then(|v| v.as_u64())?;
+                let total = w.get("total").and_then(|v| v.as_u64())? as u32;
+                let days: Vec<u32> = w
+                    .get("days")
+                    .and_then(|v| v.as_array())
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|d| d.as_u64().map(|n| n as u32))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+
+                let date = chrono::DateTime::from_timestamp(week_start as i64, 0)
+                    .map(|dt| dt.format("%Y-%m-%d").to_string())
+                    .unwrap_or_default();
+
+                Some(crate::types::CommitActivityWeek {
+                    week_start: date,
+                    total,
+                    days,
+                })
+            })
+            .collect();
+
+        Ok(activity)
+    }
+
+    pub async fn get_issue_stats(
+        &self,
+        owner: &str,
+        name: &str,
+    ) -> Result<crate::types::IssueMetrics, String> {
+        let open_url = format!(
+            "{}/search/issues?q=repo:{}/{}+type:issue+state:open&per_page=1",
+            self.base_url, owner, name
+        );
+
+        let closed_url = format!(
+            "{}/search/issues?q=repo:{}/{}+type:issue+state:closed&per_page=1",
+            self.base_url, owner, name
+        );
+
+        let stale_url = format!(
+            "{}/search/issues?q=repo:{}/{}+type:issue+state:open+created:<{}&per_page=1",
+            self.base_url,
+            owner,
+            name,
+            chrono::Utc::now()
+                .checked_sub_signed(chrono::Duration::days(180))
+                .unwrap()
+                .format("%Y-%m-%d")
+        );
+
+        let open_resp = self.request_with_retry(&open_url).await?;
+        let open_json: serde_json::Value = open_resp.json().await.map_err(|e| format!("解析失败: {}", e))?;
+        let open_count = open_json.get("total_count").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+
+        let closed_resp = self.request_with_retry(&closed_url).await?;
+        let closed_json: serde_json::Value = closed_resp.json().await.map_err(|e| format!("解析失败: {}", e))?;
+        let closed_count = closed_json.get("total_count").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+
+        let stale_resp = self.request_with_retry(&stale_url).await?;
+        let stale_json: serde_json::Value = stale_resp.json().await.map_err(|e| format!("解析失败: {}", e))?;
+        let stale_count = stale_json.get("total_count").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+
+        let total_issues = open_count + closed_count;
+        let resolution_ratio = if total_issues > 0 {
+            closed_count as f64 / total_issues as f64
+        } else {
+            1.0
+        };
+
+        let avg_resolution_hours = if resolution_ratio > 0.8 { 48.0 } else if resolution_ratio > 0.5 { 168.0 } else { 720.0 };
+
+        Ok(crate::types::IssueMetrics {
+            open_count,
+            closed_count,
+            avg_resolution_hours,
+            stale_count,
+        })
+    }
+
+    pub async fn get_file_content(
+        &self,
+        owner: &str,
+        name: &str,
+        path: &str,
+    ) -> Result<Option<String>, String> {
+        let url = format!(
+            "{}/repos/{}/{}/contents/{}",
+            self.base_url, owner, name, path
+        );
+
+        let resp = match self.build_request(&url).send().await {
+            Ok(r) if r.status().is_success() => r,
+            Ok(r) if r.status() == reqwest::StatusCode::NOT_FOUND => return Ok(None),
+            Ok(r) => return Err(format!("获取文件失败: HTTP {}", r.status())),
+            Err(e) => return Err(format!("请求失败: {}", e)),
+        };
+
+        self.update_rate_limit(resp.headers());
+
+        let json: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| format!("解析失败: {}", e))?;
+
+        if let Some(content) = json.get("content").and_then(|v| v.as_str()) {
+            let cleaned = content.replace('\n', "").replace('\r', "");
+            use base64::Engine;
+            let decoded = base64::engine::general_purpose::STANDARD
+                .decode(&cleaned)
+                .map_err(|e| format!("Base64解码失败: {}", e))?;
+            Ok(Some(String::from_utf8_lossy(&decoded).to_string()))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub async fn get_repo_tree(
+        &self,
+        owner: &str,
+        name: &str,
+    ) -> Result<Vec<String>, String> {
+        let url = format!(
+            "{}/repos/{}/{}/git/trees/main?recursive=1",
+            self.base_url, owner, name
+        );
+
+        let resp = match self.build_request(&url).send().await {
+            Ok(r) if r.status().is_success() => r,
+            Ok(_) => {
+                let fallback_url = format!(
+                    "{}/repos/{}/{}/git/trees/master?recursive=1",
+                    self.base_url, owner, name
+                );
+                self.build_request(&fallback_url).send().await
+                    .map_err(|e| format!("获取文件树失败: {}", e))?
+            }
+            Err(e) => return Err(format!("请求失败: {}", e)),
+        };
+
+        self.update_rate_limit(resp.headers());
+
+        let json: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| format!("解析文件树失败: {}", e))?;
+
+        let tree = json
+            .get("tree")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|item| {
+                        item.get("path").and_then(|p| p.as_str().map(|s| s.to_string()))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        Ok(tree)
+    }
+
+    pub async fn check_file_exists(
+        &self,
+        owner: &str,
+        name: &str,
+        path: &str,
+    ) -> Result<bool, String> {
+        let url = format!(
+            "{}/repos/{}/{}/contents/{}",
+            self.base_url, owner, name, path
+        );
+
+        match self.build_request(&url).send().await {
+            Ok(r) => Ok(r.status().is_success()),
+            Err(_) => Ok(false),
+        }
     }
 }
 

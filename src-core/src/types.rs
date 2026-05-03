@@ -123,3 +123,55 @@ pub enum EvalError {
     #[error("内部错误: {0}")]
     Internal(String),
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StarHistoryPoint {
+    pub date: String,
+    pub count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitActivityWeek {
+    pub week_start: String,
+    pub total: u32,
+    pub days: Vec<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct IssueMetrics {
+    pub open_count: u32,
+    pub closed_count: u32,
+    pub avg_resolution_hours: f64,
+    pub stale_count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrendReport {
+    pub repo_full_name: String,
+    pub star_growth_rate: f64,
+    pub star_trend: String,
+    pub commit_frequency_trend: String,
+    pub commit_consistency: f64,
+    pub issue_health: f64,
+    pub health_score: f64,
+    pub health_label: String,
+    pub anomalies: Vec<String>,
+    pub star_history: Vec<StarHistoryPoint>,
+    pub commit_activity: Vec<CommitActivityWeek>,
+    pub issue_metrics: IssueMetrics,
+    pub generated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrendSnapshot {
+    pub repo_full_name: String,
+    pub stars: u32,
+    pub forks: u32,
+    pub open_issues: u32,
+    pub snapshot_at: String,
+}

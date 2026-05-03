@@ -101,3 +101,16 @@ export const defaultDimensionWeights: DimensionWeights = {
   community: 10,
   security: 20,
 };
+
+export interface StatsData {
+  total: number;
+  byGrade: { grade: string; count: number }[];
+  byTrack: { track: string; count: number }[];
+  avgScore: number;
+  topScore: number;
+  favorites: number;
+  recent7d: number;
+  scoreDistribution: { bucket: string; count: number }[];
+  byLanguage: { language: string; count: number }[];
+  byEvidence: { evidenceLevel: string; count: number }[];
+}

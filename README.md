@@ -11,9 +11,9 @@
 [![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 
-三轨覆盖，无盲区 — 挖掘被忽视的宝藏，甄别高星项目中的真金，评估稳态项目的品质。
+三轨覆盖 — 挖掘被忽视的项目，甄别高星项目中的真金，评估稳态项目的品质。
 
-Three-track coverage, no blind spots — unearth neglected gems, verify high-star quality, assess steady-state projects.
+Three-track coverage — unearth neglected gems, verify high-star quality, assess steady-state projects.
 
 </div>
 
@@ -61,7 +61,7 @@ Input ──> [1] Evidence Gate ──> [2] Bayesian Correction ──> [3] Base
 | 1 | Evidence threshold: L4 capped at 50%, L5 = 0 |
 | 2 | Bayesian small-sample correction toward global mean |
 | 3 | Base deficiency caps related dimension scores |
-| 4 | Cross-dimension validation raises manipulation cost exponentially |
+| 4 | Cross-dimension validation increases manipulation difficulty |
 | 5 | Dimension floor: any violation triggers veto |
 | 6 | Anomaly detection (enabled at >= 30 projects) |
 | 7 | F-dimension cannot exceed OpenSSF Scorecard x 1.2 |
@@ -137,7 +137,7 @@ Input ──> [1] Evidence Gate ──> [2] Bayesian Correction ──> [3] Base
 winget install ralph
 
 # Or build from source
-git clone https://github.com/yourusername/ralph.git
+git clone https://github.com/ralph-project/ralph.git
 cd ralph
 pnpm install
 pnpm tauri build
@@ -150,7 +150,7 @@ pnpm tauri build
 brew install --cask ralph
 
 # Or build from source
-git clone https://github.com/yourusername/ralph.git
+git clone https://github.com/ralph-project/ralph.git
 cd ralph
 pnpm install
 pnpm tauri build
@@ -161,7 +161,7 @@ pnpm tauri build
 ```bash
 # Download AppImage from GitHub Releases
 # Or build from source
-git clone https://github.com/yourusername/ralph.git
+git clone https://github.com/ralph-project/ralph.git
 cd ralph
 pnpm install
 pnpm tauri build
@@ -187,7 +187,7 @@ ralph search "rust logging" --count 5
 ### Development / 开发模式
 
 ```bash
-git clone https://github.com/yourusername/ralph.git
+git clone https://github.com/ralph-project/ralph.git
 cd ralph
 pnpm install
 pnpm tauri dev
@@ -325,7 +325,7 @@ npx playwright test e2e/app.spec.ts
 
 | Test Type | Cases | Pass Rate |
 |---|---|---|
-| Rust Unit Tests | 91 | 87 passed, 4 ignored |
+| Rust Unit Tests | 152 | 152 passed, 4 ignored |
 | TypeScript Compile | 1 | 100% |
 | E2E System Tests | 13 | 100% |
 | Edge Cases | 14 | 100% |
@@ -370,7 +370,7 @@ ralph/
 
 ## Related Projects / 相关项目
 
-- **[Arcane Codex](https://github.com/yourusername/arcane-codex)** — Knowledge base desktop app built with the same Rust + React + Tauri stack. If you enjoy Ralph's evaluation methodology, Arcane Codex helps you organize and retain the knowledge you discover.
+- **[Arcane Codex](https://github.com/ralph-project/arcane-codex)** — Knowledge base desktop app built with the same Rust + React + Tauri stack. If you enjoy Ralph's evaluation methodology, Arcane Codex helps you organize and retain the knowledge you discover.
 
 ---
 

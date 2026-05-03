@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useI18n } from '../i18n';
 
 interface TooltipProps {
   targetId: string;
@@ -89,21 +90,21 @@ const Tooltip: React.FC<TooltipProps> = ({
             onClick={onClose}
             className="text-xs px-3 py-1.5 text-gray-400 hover:text-gray-200 transition-colors"
           >
-            跳过引导
+            {t('skipGuide')}
           </button>
           {hasMore && onNext ? (
             <button
               onClick={onNext}
               className="text-xs px-4 py-1.5 bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
-              下一步
+              {t('nextStep')}
             </button>
           ) : (
             <button
               onClick={onClose}
               className="text-xs px-4 py-1.5 bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
-              开始使用
+              {t('getStarted')}
             </button>
           )}
         </div>
@@ -116,32 +117,33 @@ interface OnboardingGuideProps {
   isLight?: boolean;
 }
 
-const STEPS = [
-  {
-    targetId: 'ralph-search-input',
-    content: '🔍 这里是搜索框 — 输入关键词如 "rust logging" 即可搜索并评估 GitHub 项目。也可以按 / 键快速聚焦。',
-    position: 'bottom' as const,
-  },
-  {
-    targetId: 'ralph-settings-btn',
-    content: '⚙️ 设置面板 — 可配置 GitHub Token、启动批量评定、自定义各维度权重。',
-    position: 'bottom' as const,
-  },
-  {
-    targetId: 'ralph-trending-btn',
-    content: '🔥 Trending 探索 — 发现 GitHub 上的热门项目，一键评估感兴趣的项目。',
-    position: 'bottom' as const,
-  },
-  {
-    targetId: 'ralph-lang-btn',
-    content: '🌐 语言切换 — 支持中英文双语界面，点击即可切换。',
-    position: 'bottom' as const,
-  },
-];
-
 const OnboardingGuide: React.FC<OnboardingGuideProps> = () => {
+  const { t } = useI18n();
   const [showGuide, setShowGuide] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = [
+    {
+      targetId: 'ralph-search-input',
+      content: t('onboardingSearch'),
+      position: 'bottom' as const,
+    },
+    {
+      targetId: 'ralph-settings-btn',
+      content: t('onboardingSettings'),
+      position: 'bottom' as const,
+    },
+    {
+      targetId: 'ralph-trending-btn',
+      content: t('onboardingTrending'),
+      position: 'bottom' as const,
+    },
+    {
+      targetId: 'ralph-lang-btn',
+      content: t('onboardingLang'),
+      position: 'bottom' as const,
+    },
+  ];
 
   useEffect(() => {
     const hasSeen = localStorage.getItem('ralph-onboarding-seen');
@@ -158,7 +160,7 @@ const OnboardingGuide: React.FC<OnboardingGuideProps> = () => {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       handleClose();
@@ -167,7 +169,7 @@ const OnboardingGuide: React.FC<OnboardingGuideProps> = () => {
 
   if (!showGuide) return null;
 
-  const step = STEPS[currentStep];
+  const step = steps[currentStep];
 
   return (
     <Tooltip

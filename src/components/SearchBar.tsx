@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/useAppStore';
 import { tauri } from '../services/tauri';
+import { useI18n } from '../i18n';
 
 interface HistoryItem {
   keyword: string;
@@ -29,6 +30,7 @@ type SearchBarProps = {
 };
 
 const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
+  const { t } = useI18n();
   const { setQuery, setLoading, setSearchResults } = useAppStore();
   const [localInput, setLocalInput] = useState('');
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -130,20 +132,20 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
     if (!queryText.trim()) return;
 
     setQuery(queryText.trim());
-    setLoading({ phase: 'searching', message: '正在搜索 GitHub 项目...' });
+    setLoading({ phase: 'searching', message: t('searching') });
 
     try {
       const response = await tauri.searchAndEvaluate(queryText.trim());
       setSearchResults(response.results);
     } catch (error) {
       const errorMessage = String(error);
-      let userMessage = '搜索失败，请稍后重试';
+      let userMessage = t('errorGeneric');
       if (errorMessage.includes('invoke') || errorMessage.includes('undefined')) {
-        userMessage = '请在 Ralph 桌面应用中使用此功能，或下载安装桌面版';
+        userMessage = t('errorNetwork');
       } else if (errorMessage.includes('rate limit') || errorMessage.includes('403')) {
-        userMessage = 'GitHub API 限流，请在设置中配置 Token 后重试';
+        userMessage = t('errorRateLimit');
       } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
-        userMessage = '网络连接失败，请检查网络后重试';
+        userMessage = t('errorNetwork');
       }
       setLoading({
         phase: 'error',
@@ -229,15 +231,15 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
           onChange={(e) => setLocalInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => localInput && suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder="输入搜索关键词，如 'rust logging' 或 'react state management'"
-          aria-label="搜索 GitHub 项目"
+          placeholder={t('searchPlaceholder')}
+          aria-label={t('searchPlaceholder')}
           autoComplete="off"
           className="w-full bg-gray-900 text-gray-100 placeholder-gray-600 rounded-lg pl-4 pr-10 py-3 text-sm border border-gray-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all"
         />
         {localInput && (
           <button
             onClick={() => { setLocalInput(''); setShowSuggestions(false); }}
-            aria-label="清除搜索"
+            aria-label={t('clear')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +251,7 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
         {showSuggestions && suggestions.length > 0 && (
           <div
             role="listbox"
-            aria-label="搜索建议"
+            aria-label={t('searchHistory')}
             className="absolute z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
           >
             {suggestions.map((item, i) => (
@@ -273,10 +275,10 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
                 )}
                 <span className="truncate">{item.keyword}</span>
                 {item.type === 'history' && (
-                  <span className="ml-auto text-xs text-amber-500/50">历史</span>
+                  <span className="ml-auto text-xs text-amber-500/50">{t('historyTag')}</span>
                 )}
                 {item.type === 'popular' && (
-                  <span className="ml-auto text-xs text-gray-400">热门</span>
+                  <span className="ml-auto text-xs text-gray-400">{t('popularTag')}</span>
                 )}
                 {i === selectedIndex && (
                   <span className="ml-1 text-xs text-gray-400">Tab</span>
@@ -294,7 +296,7 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        搜索
+        {t('search')}
       </button>
     </div>
   );

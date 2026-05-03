@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { ProjectRecommendation } from '../types';
+import type { ProjectRecommendation, StatsData } from '../types';
 
 export interface SearchMeta {
   queryId: string;
@@ -69,6 +69,73 @@ export const tauri = {
 
   generateBadge: (grade: string, score: number, repoFullName: string) =>
     invoke<BadgeInfo>('generate_badge', { grade, score, repoFullName }),
+
+  startDiscovery: () =>
+    invoke<DiscoveryStatus>('start_discovery'),
+
+  stopDiscovery: () =>
+    invoke<DiscoveryStatus>('stop_discovery'),
+
+  getDiscoveryStatus: () =>
+    invoke<DiscoveryStatus>('get_discovery_status'),
+
+  getDiscoveryResults: () =>
+    invoke<ProjectRecommendation[]>('get_discovery_results'),
+
+  clearDiscoveryResults: () =>
+    invoke('clear_discovery_results'),
+
+  updateDiscoveryConfig: (config: DiscoveryConfig) =>
+    invoke<DiscoveryConfig>('update_discovery_config', { config }),
+
+  getDiscoveryConfig: () =>
+    invoke<DiscoveryConfig>('get_discovery_config'),
+
+  exportDiscoveryResults: (format: 'json' | 'csv') =>
+    invoke<string>('export_discovery_results', { format }),
+
+  getStats: () =>
+    invoke<StatsData>('get_stats'),
+
+  resumeBatch: (sessionId: string) =>
+    invoke<SearchResponse>('resume_batch', { sessionId }),
+
+  getBatchSessions: () =>
+    invoke<BatchSession[]>('get_batch_sessions'),
+
+  deleteBatchSession: (sessionId: string) =>
+    invoke('delete_batch_session', { sessionId }),
 } as const;
+
+export interface DiscoveryStatus {
+  running: boolean;
+  discoveriesCount: number;
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  currentRound: number;
+  totalEvaluated: number;
+}
+
+export interface DiscoveryConfig {
+  topics: string[];
+  languages: string[];
+  minStars: number;
+  maxStars: number;
+  minScore: number;
+  intervalMinutes: number;
+  maxPerRound: number;
+}
+
+export interface BatchSession {
+  sessionId: string;
+  query: string;
+  totalRepos: number;
+  processed: number;
+  evaluated: number;
+  skipped: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type TauriService = typeof tauri;

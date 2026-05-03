@@ -4,9 +4,9 @@
   "version": "0.8.0",
   "identifier": "com.ralph.app",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "pnpm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "pnpm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -37,6 +37,6 @@
     "publisher": "Ralph",
     "copyright": "Copyright © 2026 Ralph",
     "shortDescription": "GitHub 高质量项目发现与评估工具",
-    "longDescription": "Ralph 是一个 GitHub 项目发现与评估工具，三轨覆盖无盲区——挖掘被忽视的宝藏，甄别高星项目中的真金，评估稳态项目的品质。基于六维评估模型（满分105分），包含防博弈7层流水线机制。"
+    "longDescription": "Ralph 是一个 GitHub 项目发现与评估工具，三轨覆盖——挖掘被忽视的项目，甄别高星项目中的真金，评估稳态项目的品质。基于六维评估模型（满分105分），包含防博弈7层流水线机制。"
   }
 }

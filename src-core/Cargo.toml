@@ -4,12 +4,12 @@ version = "0.8.0"
 edition = "2021"
 description = "Ralph Core - GitHub 高质量项目发现与评估核心逻辑库"
 license = "MIT"
-repository = "https://github.com/yourusername/ralph"
-homepage = "https://github.com/yourusername/ralph#readme"
+repository = "https://github.com/ralph-project/ralph"
+homepage = "https://github.com/ralph-project/ralph#readme"
 readme = "../README.md"
 keywords = ["github", "evaluation", "assessment", "core", "developer-tools"]
 categories = ["development-tools", "algorithms"]
-authors = ["Ralph Team <ralph@example.com>"]
+authors = ["Ralph Team <team@ralph.dev>"]
 rust-version = "1.70"
 
 [dependencies]
@@ -22,6 +22,7 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 thiserror = "1.0"
 urlencoding = "2.1"
 dirs = "5.0"
+base64 = "0.22"
 
 [dev-dependencies]
 tokio-test = "0.4"

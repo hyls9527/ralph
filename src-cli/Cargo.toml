@@ -4,12 +4,12 @@ version = "0.8.0"
 edition = "2021"
 description = "Ralph CLI - GitHub 高质量项目发现与评估工具命令行接口"
 license = "MIT"
-repository = "https://github.com/yourusername/ralph"
-homepage = "https://github.com/yourusername/ralph#readme"
+repository = "https://github.com/ralph-project/ralph"
+homepage = "https://github.com/ralph-project/ralph#readme"
 readme = "../README.md"
 keywords = ["github", "evaluation", "assessment", "cli", "developer-tools"]
 categories = ["command-line-utilities", "development-tools"]
-authors = ["Ralph Team <ralph@example.com>"]
+authors = ["Ralph Team <team@ralph.dev>"]
 rust-version = "1.70"
 
 [[bin]]

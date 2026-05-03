@@ -34,6 +34,9 @@ src-tauri/gen/
 # Tauri updater
 *.Updater.exe
 
+# Playwright CLI audit artifacts
+.playwright-cli/
+
 # Test results
 test-results/
 e2e-report/
