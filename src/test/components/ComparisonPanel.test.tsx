@@ -51,8 +51,8 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
   };
 }
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       comparison: '对比',
       exitComparison: '退出对比',
@@ -61,8 +61,12 @@ vi.mock('../../i18n', () => ({
       steady: '稳态',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 describe('ComparisonPanel', () => {
   it('单个项目渲染', () => {

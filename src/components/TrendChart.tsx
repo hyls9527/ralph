@@ -1,11 +1,15 @@
 import React, { useMemo } from 'react';
 import type { ProjectRecommendation } from '../types';
+import { useTheme } from '../hooks/useTheme';
+import { useI18n } from '../i18n';
 
 interface TrendChartProps {
   projects: ProjectRecommendation[];
 }
 
 const TrendChart: React.FC<TrendChartProps> = ({ projects }) => {
+  const { isDark } = useTheme();
+  const { t } = useI18n();
   const scoreDistribution = useMemo(() => {
     const bins = [0, 0, 0, 0];
     projects.forEach(p => {
@@ -37,28 +41,28 @@ const TrendChart: React.FC<TrendChartProps> = ({ projects }) => {
   const chartWidth = 4 * barWidth + 3 * barGap;
 
   const categories = [
-    { label: 'S 级', value: scoreDistribution.S, color: '#8b5cf6' },
-    { label: 'A 级', value: scoreDistribution.A, color: '#3b82f6' },
-    { label: 'B 级', value: scoreDistribution.B, color: '#10b981' },
-    { label: '未入选', value: scoreDistribution.X, color: '#6b7280' },
+    { label: t('sGrade'), value: scoreDistribution.S, color: '#8b5cf6' },
+    { label: t('aGrade'), value: scoreDistribution.A, color: '#3b82f6' },
+    { label: t('bGrade'), value: scoreDistribution.B, color: '#10b981' },
+    { label: t('notSelected'), value: scoreDistribution.X, color: '#6b7280' },
   ];
 
   const trackCategories = [
-    { label: '被忽视', value: trackDistribution['neglected'], color: '#06b6d4' },
-    { label: '高星', value: trackDistribution['high-star'], color: '#f59e0b' },
-    { label: '稳态', value: trackDistribution['steady'], color: '#ec4899' },
+    { label: t('neglected'), value: trackDistribution['neglected'], color: '#06b6d4' },
+    { label: t('highStar'), value: trackDistribution['high-star'], color: '#f59e0b' },
+    { label: t('steady'), value: trackDistribution['steady'], color: '#ec4899' },
   ];
   const maxTrackDist = Math.max(...trackCategories.map(c => c.value), 1);
 
   return (
-    <div className="rounded-xl bg-gray-900/80 border border-gray-700 p-4">
-      <h3 className="text-sm font-semibold text-gray-300 mb-4">评分分布统计</h3>
+    <div className={`rounded-xl p-4 border ${isDark ? 'bg-gray-900/80 border-gray-700' : 'bg-white/80 border-gray-200/80'}`}>
+      <h3 className={`text-sm font-semibold mb-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t('scoreDistributionStats')}</h3>
       <div className="flex gap-6">
         {/* 评分分布柱状图 */}
         <div className="flex-1">
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-            <span>平均分: <span className="text-violet-400 font-semibold">{avgScore.toFixed(1)}</span></span>
-            <span>共 {projects.length} 个项目</span>
+          <div className={`flex items-center justify-between text-xs mb-2 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+            <span>{t('avgScore')}: <span className="text-violet-400 font-semibold">{avgScore.toFixed(1)}</span></span>
+            <span>{t('totalProjects')}: {projects.length}</span>
           </div>
           <svg width={chartWidth + 20} height={chartHeight + 30} className="w-full" viewBox={`0 0 ${chartWidth + 20} ${chartHeight + 30}`}>
             {categories.map((cat, i) => {
@@ -80,7 +84,7 @@ const TrendChart: React.FC<TrendChartProps> = ({ projects }) => {
 
         {/* 轨道分布柱状图 */}
         <div className="flex-1">
-          <div className="text-xs text-gray-500 mb-2">轨道分布</div>
+          <div className={`text-xs mb-2 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{t('trackDistribution')}</div>
           <svg width={chartWidth / 4 * 3 + 20} height={chartHeight + 30} className="w-full" viewBox={`0 0 ${chartWidth / 4 * 3 + 20} ${chartHeight + 30}`}>
             {trackCategories.map((cat, i) => {
               const tw = chartWidth / 4 * 3;

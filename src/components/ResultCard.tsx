@@ -4,6 +4,7 @@ import TrustBadge from './TrustBadge';
 import ConfidenceBadge from './ConfidenceBadge';
 import ReportShare from './ReportShare';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface ResultCardProps {
   project: ProjectRecommendation;
@@ -19,15 +20,6 @@ const areEqual = (prevProps: ResultCardProps, nextProps: ResultCardProps): boole
     prevProps.onDetailClick === nextProps.onDetailClick &&
     prevProps.onFavoriteToggle === nextProps.onFavoriteToggle
   );
-};
-
-const getTrackLabel = (track: string): string => {
-  switch (track) {
-    case 'neglected': return t('trackNeglected');
-    case 'high-star': return t('trackHighStar');
-    case 'steady': return t('trackSteady');
-    default: return track;
-  }
 };
 
 const gradeColors: Record<string, string> = {
@@ -218,10 +210,20 @@ const DimensionDrillDown: React.FC<{ dimension: { dimension: string; score: numb
 
 const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavorite, onFavoriteToggle }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const [radarView, setRadarView] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const { repo, trustBadge, totalScore, grade, track, oneLiner, evidenceLevel, recommendationIndex, dimensions, vetoFlags, confidenceTier, decisionTrail } = project;
+
+  const getTrackLabel = (trackVal: string): string => {
+    switch (trackVal) {
+      case 'neglected': return t('trackNeglected');
+      case 'high-star': return t('trackHighStar');
+      case 'steady': return t('trackSteady');
+      default: return trackVal;
+    }
+  };
 
   const dimensionColors: Record<string, string> = {
     '质量': 'text-emerald-400',
@@ -246,7 +248,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
   };
 
   return (
-    <div className="bg-gray-900/60 backdrop-blur rounded-xl border border-gray-800 hover:border-violet-500/40 transition-all duration-200 animate-fade-in">
+    <div className={`${isDark ? 'bg-gray-900/60 border-gray-800' : 'bg-white/80 border-gray-200'} backdrop-blur rounded-xl border hover:border-violet-500/40 transition-all duration-200 animate-fade-in`}>
       {/* 否决项指示器 */}
       {hasVetoFlags && (
         <div className="h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-rose-500 rounded-t-xl" />
@@ -364,7 +366,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
 
         {/* 六维评分 — 进度条 / 雷达图切换 */}
         {dimensions && dimensions.length > 0 && (
-          <div className="mt-4 bg-gray-800/30 rounded-lg p-3">
+          <div className={`mt-4 ${isDark ? 'bg-gray-800/30' : 'bg-gray-100/60'} rounded-lg p-3`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-gray-400">六维评分</span>
               <button
@@ -425,7 +427,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
         )}
 
         {/* 一句话推荐 */}
-        <div className="mt-3 bg-gray-800/50 rounded-lg p-3 border-l-2 border-violet-500">
+        <div className={`mt-3 ${isDark ? 'bg-gray-800/50' : 'bg-gray-100/70'} rounded-lg p-3 border-l-2 border-violet-500`}>
           <p className="text-sm text-gray-300">{oneLiner}</p>
         </div>
 
@@ -447,7 +449,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
             </button>
 
             {expanded && (
-              <div className="mt-2 bg-gray-800/50 rounded-lg p-4 text-xs space-y-2 animate-fade-in">
+              <div className={`mt-2 ${isDark ? 'bg-gray-800/50' : 'bg-gray-100/70'} rounded-lg p-4 text-xs space-y-2 animate-fade-in`}>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <span className="text-gray-400 block">质量分</span>

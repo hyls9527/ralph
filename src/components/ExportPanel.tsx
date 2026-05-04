@@ -1,6 +1,8 @@
 import React from 'react';
 import type { ProjectRecommendation } from '../types';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
+import { exportJSONLines, exportMarkdownTable, exportHTMLReport, downloadFile } from '../lib/export-formats';
 
 interface ExportPanelProps {
   projects: ProjectRecommendation[];
@@ -8,6 +10,7 @@ interface ExportPanelProps {
 
 const ExportPanel: React.FC<ExportPanelProps> = ({ projects }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   if (projects.length === 0) return null;
 
   const exportJSON = () => {
@@ -147,28 +150,64 @@ ${p.dimensions.map(d => `**${d.dimension}**:\n${d.subScores.map(([name, score, m
     URL.revokeObjectURL(url);
   };
 
+  const exportJSONLinesFile = () => {
+    const content = exportJSONLines(projects);
+    downloadFile(content, `ralph-export-${Date.now()}.jsonl`, 'application/jsonl');
+  };
+
+  const exportHTML = () => {
+    const content = exportHTMLReport(projects);
+    downloadFile(content, `ralph-report-${Date.now()}.html`, 'text/html');
+  };
+
+  const exportMDTable = () => {
+    const content = exportMarkdownTable(projects);
+    downloadFile(content, `ralph-table-${Date.now()}.md`, 'text/markdown');
+  };
+
+  const btnClass = `text-xs px-3 py-1.5 border rounded-lg transition-colors flex items-center gap-1.5 ${
+    isDark
+      ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-violet-500 hover:text-violet-300'
+      : 'bg-white border-gray-300 text-gray-700 hover:border-violet-500 hover:text-violet-600'
+  }`;
+
   return (
-    <div className="flex items-center gap-2 mt-3">
-      <button onClick={exportJSON}
-        className="text-xs px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:border-violet-500 hover:text-violet-300 transition-colors flex items-center gap-1.5">
+    <div className="flex items-center gap-2 mt-3 flex-wrap">
+      <button onClick={exportJSON} className={btnClass}>
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
         {t('jsonExport')}
       </button>
-      <button onClick={exportCSV}
-        className="text-xs px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:border-violet-500 hover:text-violet-300 transition-colors flex items-center gap-1.5">
+      <button onClick={exportJSONLinesFile} className={btnClass}>
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        JSON Lines
+      </button>
+      <button onClick={exportCSV} className={btnClass}>
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
         {t('csvExport')}
       </button>
-      <button onClick={exportMarkdown}
-        className="text-xs px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 hover:border-violet-500 hover:text-violet-300 transition-colors flex items-center gap-1.5">
+      <button onClick={exportMarkdown} className={btnClass}>
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
         {t('mdExport')}
+      </button>
+      <button onClick={exportMDTable} className={btnClass}>
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        MD Table
+      </button>
+      <button onClick={exportHTML} className={btnClass}>
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        HTML
       </button>
     </div>
   );

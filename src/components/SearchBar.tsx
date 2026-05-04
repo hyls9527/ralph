@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useAppStore } from '../stores/useAppStore';
 import { tauri } from '../services/tauri';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface HistoryItem {
   keyword: string;
@@ -31,6 +32,7 @@ type SearchBarProps = {
 
 const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const { setQuery, setLoading, setSearchResults } = useAppStore();
   const [localInput, setLocalInput] = useState('');
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -234,13 +236,19 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
           placeholder={t('searchPlaceholder')}
           aria-label={t('searchPlaceholder')}
           autoComplete="off"
-          className="w-full bg-gray-900 text-gray-100 placeholder-gray-600 rounded-lg pl-4 pr-10 py-3 text-sm border border-gray-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all"
+          className={`w-full rounded-lg pl-4 pr-10 py-3 text-sm border focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all ${
+            isDark
+              ? 'bg-gray-900 text-gray-100 placeholder-gray-600 border-gray-700'
+              : 'bg-white text-gray-900 placeholder-gray-400 border-gray-300'
+          }`}
         />
         {localInput && (
           <button
             onClick={() => { setLocalInput(''); setShowSuggestions(false); }}
             aria-label={t('clear')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${
+              isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
+            }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -252,7 +260,11 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
           <div
             role="listbox"
             aria-label={t('searchHistory')}
-            className="absolute z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
+            className={`absolute z-20 w-full mt-1 rounded-lg shadow-xl overflow-hidden border ${
+              isDark
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-white border-gray-200'
+            }`}
           >
             {suggestions.map((item, i) => (
               <button
@@ -261,7 +273,11 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
                 aria-selected={i === selectedIndex}
                 onMouseDown={(e) => { e.preventDefault(); selectSuggestion(item.keyword); }}
                 className={`w-full text-left px-4 py-2.5 min-h-[44px] text-sm transition-colors flex items-center gap-2 ${
-                  i === selectedIndex ? 'bg-violet-600/20 text-violet-300' : 'text-gray-300 hover:bg-gray-700'
+                  i === selectedIndex
+                    ? 'bg-violet-600/20 text-violet-300'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 {item.type === 'history' ? (

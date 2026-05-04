@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface TooltipProps {
   targetId: string;
@@ -20,6 +21,8 @@ const Tooltip: React.FC<TooltipProps> = ({
   onNext,
   hasMore = false,
 }) => {
+  const { t } = useI18n();
+  const { isDark } = useTheme();
   const [style, setStyle] = useState<React.CSSProperties>({});
 
   useEffect(() => {
@@ -82,13 +85,19 @@ const Tooltip: React.FC<TooltipProps> = ({
       {/* Tooltip */}
       <div
         style={style}
-        className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-4 max-w-xs animate-fade-in"
+        className={`rounded-xl shadow-2xl p-4 max-w-xs animate-fade-in ${
+          isDark
+            ? 'bg-gray-900 border border-gray-700'
+            : 'bg-white border border-gray-200'
+        }`}
       >
-        <p className="text-sm text-gray-200 leading-relaxed mb-3">{content}</p>
+        <p className={`text-sm leading-relaxed mb-3 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{content}</p>
         <div className="flex items-center justify-between gap-2">
           <button
             onClick={onClose}
-            className="text-xs px-3 py-1.5 text-gray-400 hover:text-gray-200 transition-colors"
+            className={`text-xs px-3 py-1.5 transition-colors ${
+              isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+            }`}
           >
             {t('skipGuide')}
           </button>
@@ -180,7 +189,7 @@ const OnboardingGuide: React.FC<OnboardingGuideProps> = () => {
       visible={showGuide}
       onClose={handleClose}
       onNext={handleNext}
-      hasMore={currentStep < STEPS.length - 1}
+      hasMore={currentStep < steps.length - 1}
     />
   );
 };

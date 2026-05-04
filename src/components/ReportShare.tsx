@@ -1,11 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import type { ProjectRecommendation } from '../types';
+import { useTheme } from '../hooks/useTheme';
+import { useI18n } from '../i18n';
 
 interface ReportShareProps {
   project: ProjectRecommendation;
 }
 
 const ReportShare: React.FC<ReportShareProps> = ({ project }) => {
+  const { isDark } = useTheme();
+  const { t } = useI18n();
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -102,8 +106,12 @@ ${p.trustBadge ? [
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="p-1.5 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-gray-200 transition-colors"
-        title="生成评估报告"
+        className={`p-1.5 rounded-lg transition-colors ${
+          isDark
+            ? 'hover:bg-gray-700/50 text-gray-400 hover:text-gray-200'
+            : 'hover:bg-gray-100/80 text-gray-600 hover:text-gray-800'
+        }`}
+        title={t('generateReport')}
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -112,12 +120,22 @@ ${p.trustBadge ? [
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-100">评估报告 - {project.repo.fullName}</h3>
+          <div className={`border rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col ${
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
+            <div className={`flex items-center justify-between p-4 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+                {t('evalReport')} - {project.repo.fullName}
+              </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-gray-200"
+                className={`p-1 rounded-lg transition-colors ${
+                  isDark
+                    ? 'hover:bg-gray-700 text-gray-400 hover:text-gray-200'
+                    : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+                }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -125,11 +143,15 @@ ${p.trustBadge ? [
               </button>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
-              <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono bg-gray-900/50 p-4 rounded-lg">
+              <pre className={`text-sm whitespace-pre-wrap font-mono p-4 rounded-lg ${
+                isDark ? 'text-gray-300 bg-gray-900/50' : 'text-gray-700 bg-gray-50'
+              }`}>
                 {generateMarkdown(project)}
               </pre>
             </div>
-            <div className="flex gap-2 p-4 border-t border-gray-700">
+            <div className={`flex gap-2 p-4 border-t ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
               <button
                 onClick={handleCopy}
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -138,13 +160,17 @@ ${p.trustBadge ? [
                     : 'bg-violet-600 hover:bg-violet-500 text-white'
                 }`}
               >
-                {copied ? '✓ 已复制' : '复制到剪贴板'}
+                {copied ? t('copied') : t('copyToClipboard')}
               </button>
               <button
                 onClick={handleExport}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-700 hover:bg-gray-600 text-gray-200 transition-colors"
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isDark
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                }`}
               >
-                导出 Markdown
+                {t('exportMarkdown')}
               </button>
             </div>
           </div>

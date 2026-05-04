@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import type { ProjectRecommendation } from '../types';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface PDFExportProps {
   projects: ProjectRecommendation[];
@@ -25,6 +26,7 @@ function escapeHtml(str: string): string {
 
 const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const exportPDF = useCallback(() => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -163,7 +165,11 @@ const PDFExport: React.FC<PDFExportProps> = ({ projects, query }) => {
   return (
     <button
       onClick={exportPDF}
-      className="text-xs px-2.5 py-1 rounded border border-gray-700 text-gray-400 hover:text-gray-300 hover:bg-gray-800 transition-colors flex items-center gap-1"
+      className={`text-xs px-2.5 py-1 rounded border transition-colors flex items-center gap-1 ${
+        isDark
+          ? 'border-gray-700 text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+          : 'border-gray-300 text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+      }`}
       title={t('exportPdfTooltip')}
     >
       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

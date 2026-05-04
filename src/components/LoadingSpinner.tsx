@@ -1,8 +1,10 @@
 import React from 'react';
 import { useAppStore } from '../stores/useAppStore';
+import { useTheme } from '../hooks/useTheme';
 
 const LoadingSpinner: React.FC = () => {
   const { loading } = useAppStore();
+  const { isDark } = useTheme();
   const { phase, message, progress } = loading;
 
   if (phase === 'idle' || phase === 'done') return null;
@@ -25,7 +27,7 @@ const LoadingSpinner: React.FC = () => {
           </div>
           <p className="mt-4 text-gray-400 text-sm">{messages[phase]}</p>
           {progress !== undefined && progress > 0 && (
-            <div className="mt-2 w-48 bg-gray-800 rounded-full h-1.5">
+            <div className={`mt-2 w-48 rounded-full h-1.5 ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}>
               <div
                 className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}

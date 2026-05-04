@@ -3,16 +3,20 @@ import { renderToString } from 'react-dom/server';
 import VirtualList from '../../components/VirtualList';
 import type { ProjectRecommendation } from '../../types';
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       detail: '详情',
       share: '分享',
       report: '报告',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {

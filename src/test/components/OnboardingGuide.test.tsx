@@ -8,6 +8,25 @@ vi.mock('../../services/tauri', () => ({
   },
 }));
 
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
+    const map: Record<string, string> = {
+      skipGuide: '跳过引导',
+      nextStep: '下一步',
+      getStarted: '开始使用',
+      onboardingSearch: '搜索框提示',
+      onboardingSettings: '设置提示',
+      onboardingTrending: '趋势提示',
+      onboardingLang: '语言提示',
+    };
+    return map[key] || key;
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
+
 describe('OnboardingGuide', () => {
   beforeEach(() => {
     vi.clearAllMocks();

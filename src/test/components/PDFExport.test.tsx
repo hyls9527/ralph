@@ -44,8 +44,8 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
   };
 }
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       pdfReport: '导出 PDF',
       exportPdfTooltip: '导出 PDF',
@@ -56,8 +56,12 @@ vi.mock('../../i18n', () => ({
       steady: '稳态',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 describe('PDFExport', () => {
   it('空项目列表返回空内容', () => {

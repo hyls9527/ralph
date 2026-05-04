@@ -33,15 +33,6 @@ const GRADE_COLORS: Record<string, string> = {
   X: 'bg-gray-500/30 text-gray-400 border-gray-500/40',
 };
 
-const getTrackLabel = (track: string): string => {
-  switch (track) {
-    case 'neglected': return t('trackNeglected');
-    case 'high-star': return t('trackHighStar');
-    case 'steady': return t('trackSteady');
-    default: return track;
-  }
-};
-
 interface RadarChartProps {
   projects: ProjectRecommendation[];
   size: number;
@@ -171,6 +162,15 @@ const RadarChart: React.FC<RadarChartProps> = ({ projects, size }) => {
 const ComparisonPanel: React.FC<ComparisonPanelProps> = ({ projects, onExit, onRemoveProject }) => {
   const { t } = useI18n();
   if (projects.length === 0) return null;
+
+  const getTrackLabel = (track: string): string => {
+    switch (track) {
+      case 'neglected': return t('trackNeglected');
+      case 'high-star': return t('trackHighStar');
+      case 'steady': return t('trackSteady');
+      default: return track;
+    }
+  };
 
   const winners = useMemo(() => {
     const result: Record<string, string[]> = {};

@@ -3,8 +3,8 @@ import { renderToString } from 'react-dom/server';
 import ExportPanel from '../../components/ExportPanel';
 import type { ProjectRecommendation } from '../../types';
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       ralphReport: 'Ralph 评估报告',
       generatedAt: '生成时间',
@@ -29,8 +29,12 @@ vi.mock('../../i18n', () => ({
       mdExport: '导出 Markdown',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {

@@ -6,6 +6,23 @@ vi.mock('../../hooks/useTheme', () => ({
   useTheme: () => ({ isDark: false, toggleTheme: vi.fn() }),
 }));
 
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
+    const map: Record<string, string> = {
+      startSearch: '开始搜索',
+      searchHint: '输入关键词搜索 GitHub 项目',
+      noMatchFound: '未找到匹配的项目',
+      tryAdjust: '尝试调整筛选条件',
+      clearFilters: '清除筛选条件',
+    };
+    return map[key] || key;
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
+
 describe('EmptyState', () => {
   it('有结果时返回 null', () => {
     const html = renderToString(<EmptyState hasResults={true} />);

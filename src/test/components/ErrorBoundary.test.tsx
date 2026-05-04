@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import ErrorBoundary from '../../components/ErrorBoundary';
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       errorOccurred: '发生错误',
       errorNetworkDetail: '网络连接异常，请检查网络后重试',
@@ -12,8 +12,12 @@ vi.mock('../../i18n', () => ({
       goBack: '返回',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 describe('ErrorBoundary', () => {
   it('正常渲染子组件', () => {

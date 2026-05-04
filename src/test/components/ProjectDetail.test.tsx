@@ -51,8 +51,8 @@ function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRec
   };
 }
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       projectDetail: '项目详情',
       close: '关闭',
@@ -62,8 +62,12 @@ vi.mock('../../i18n', () => ({
       steady: '稳态',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 vi.mock('../../services/tauri', () => ({
   tauri: {

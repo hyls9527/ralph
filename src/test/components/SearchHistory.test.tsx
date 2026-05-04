@@ -12,8 +12,8 @@ vi.mock('../../services/tauri', () => ({
   },
 }));
 
-vi.mock('../../i18n', () => ({
-  t: (key: string, params?: Record<string, number>) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string, params?: Record<string, number>) => {
     const map: Record<string, string> = {
       searchHistory: '搜索历史',
       clear: '清除',
@@ -25,8 +25,12 @@ vi.mock('../../i18n', () => ({
       clearHistoryFailed: '清除历史失败',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 describe('SearchHistory', () => {
   it('初始渲染切换按钮', () => {

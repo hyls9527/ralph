@@ -8,8 +8,8 @@ vi.mock('../../services/tauri', () => ({
   },
 }));
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       totalEvaluated: '累计评估',
       avgScore: '平均分',
@@ -26,8 +26,12 @@ vi.mock('../../i18n', () => ({
       refresh: '刷新',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 import { tauri } from '../../services/tauri';
 const mockedTauri = vi.mocked(tauri);
@@ -53,7 +57,18 @@ describe('StatsDashboard', () => {
   });
 
   it('渲染空数据状态', async () => {
-    mockedTauri.getStats.mockResolvedValue({ total: 0, avgScore: 0, topScore: 0, recent7d: 0, favorites: 0, byGrade: [], byTrack: [] });
+    mockedTauri.getStats.mockResolvedValue({
+      total: 0,
+      avgScore: 0,
+      topScore: 0,
+      recent7d: 0,
+      favorites: 0,
+      byGrade: [],
+      byTrack: [],
+      scoreDistribution: [],
+      byLanguage: [],
+      byEvidence: [],
+    });
     render(<StatsDashboard />);
     await waitFor(() => {
       expect(screen.getByText('暂无统计数据')).toBeTruthy();
@@ -78,6 +93,21 @@ describe('StatsDashboard', () => {
         { track: 'high-star', count: 35 },
         { track: 'steady', count: 25 },
       ],
+      scoreDistribution: [
+        { bucket: '90-105', count: 20 },
+        { bucket: '80-89', count: 50 },
+        { bucket: '73-79', count: 15 },
+        { bucket: '60-72', count: 10 },
+        { bucket: '0-59', count: 5 },
+      ],
+      byLanguage: [
+        { language: 'Rust', count: 40 },
+        { language: 'TypeScript', count: 35 },
+      ],
+      byEvidence: [
+        { evidenceLevel: 'L1', count: 50 },
+        { evidenceLevel: 'L2', count: 30 },
+      ],
     });
     render(<StatsDashboard />);
     await waitFor(() => {
@@ -85,7 +115,7 @@ describe('StatsDashboard', () => {
     });
     expect(screen.getByText('72.5')).toBeTruthy();
     expect(screen.getByText('98')).toBeTruthy();
-    expect(screen.getByText('15')).toBeTruthy();
+    expect(screen.getAllByText('15').length).toBeGreaterThan(0);
     expect(screen.getByText('累计评估')).toBeTruthy();
     expect(screen.getByText('等级分布')).toBeTruthy();
     expect(screen.getByText('轨道分布')).toBeTruthy();
@@ -106,6 +136,9 @@ describe('StatsDashboard', () => {
         { grade: 'X', count: 0 },
       ],
       byTrack: [],
+      scoreDistribution: [],
+      byLanguage: [],
+      byEvidence: [],
     });
     render(<StatsDashboard />);
     await waitFor(() => {
@@ -128,6 +161,9 @@ describe('StatsDashboard', () => {
         { track: 'high-star', count: 3 },
         { track: 'steady', count: 2 },
       ],
+      scoreDistribution: [],
+      byLanguage: [],
+      byEvidence: [],
     });
     render(<StatsDashboard />);
     await waitFor(() => {

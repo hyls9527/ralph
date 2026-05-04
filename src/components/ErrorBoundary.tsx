@@ -1,6 +1,11 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { t } from '../i18n';
 
+// Helper function to check current theme (for class components that can't use hooks)
+function isDarkTheme(): boolean {
+  return typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -40,7 +45,9 @@ class ErrorBoundary extends Component<Props, State> {
         : t('errorPageLoad');
 
       return (
-        <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center">
+        <div className={`min-h-screen flex items-center justify-center ${
+          isDarkTheme() ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-900'
+        }`}>
           <div className="text-center p-8 max-w-md">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-rose-500/10 flex items-center justify-center">
               <svg className="w-8 h-8 text-rose-400" fill="currentColor" viewBox="0 0 20 20">
@@ -48,7 +55,7 @@ class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             <h2 className="text-lg font-semibold mb-2">{t('errorOccurred')}</h2>
-            <p className="text-sm text-gray-400 mb-6 leading-relaxed">{userMessage}</p>
+            <p className={`text-sm mb-6 leading-relaxed ${isDarkTheme() ? 'text-gray-400' : 'text-gray-600'}`}>{userMessage}</p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => window.location.reload()}
@@ -58,7 +65,11 @@ class ErrorBoundary extends Component<Props, State> {
               </button>
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="text-sm px-4 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors"
+                className={`text-sm px-4 py-2 rounded-lg transition-colors ${
+                  isDarkTheme()
+                    ? 'border border-gray-700 text-gray-300 hover:bg-gray-800'
+                    : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 {t('goBack')}
               </button>

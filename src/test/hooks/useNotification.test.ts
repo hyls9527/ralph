@@ -107,7 +107,7 @@ describe('useNotification', () => {
   });
 
   it('无 Notification API 时 requestPermission 返回 false', async () => {
-    delete (window as Record<string, unknown>).Notification;
+    delete (window as unknown as Record<string, unknown>).Notification;
     const { result } = renderHook(() => useNotification());
     let granted: boolean = true;
     await act(async () => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ProjectRecommendation } from '../types';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 interface PipelineVisualizationProps {
   project: ProjectRecommendation;
@@ -18,6 +19,7 @@ const pipelineLayerInfo: Record<string, { icon: string; desc: string; color: str
 
 const PipelineVisualization: React.FC<PipelineVisualizationProps> = ({ project }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const { decisionTrail } = project;
 
   if (!decisionTrail || decisionTrail.length === 0) {
@@ -50,7 +52,9 @@ const PipelineVisualization: React.FC<PipelineVisualizationProps> = ({ project }
         return (
           <div key={i} className={`relative rounded-lg border ${info.color} p-4`}>
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm">
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                isDark ? 'bg-gray-800' : 'bg-gray-200'
+              }`}>
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">

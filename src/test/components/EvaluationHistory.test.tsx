@@ -8,8 +8,8 @@ vi.mock('../../services/tauri', () => ({
   },
 }));
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       noEvaluationHistory: '暂无评估历史',
       neglected: '被忽视',
@@ -17,8 +17,12 @@ vi.mock('../../i18n', () => ({
       steady: '稳态',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 describe('EvaluationHistory', () => {
   beforeEach(() => {

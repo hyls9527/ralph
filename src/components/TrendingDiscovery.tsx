@@ -3,6 +3,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { tauri, type DiscoveryStatus, type DiscoveryConfig } from '../services/tauri';
 import type { ProjectRecommendation } from '../types';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 import { useNotification } from '../hooks/useNotification';
 
 interface TrendingDiscoveryProps {
@@ -15,6 +16,7 @@ type TabMode = 'trending' | 'discovery';
 
 const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState<ProjectRecommendation[]>([]);
   const [selectedLang, setSelectedLang] = useState('All');
@@ -219,9 +221,11 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
   };
 
   return (
-    <div className="bg-gray-900/60 backdrop-blur rounded-xl border border-gray-800 p-6">
+    <div className={`backdrop-blur rounded-xl border p-6 ${
+      isDark ? 'bg-gray-900/60 border-gray-800' : 'bg-white/80 border-gray-200'
+    }`}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+        <h2 className={`text-lg font-semibold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
           <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 3.258 1.37 6.12z" clipRule="evenodd" />
           </svg>
@@ -229,7 +233,7 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
         </h2>
 
         {/* Tab 切换 */}
-        <div className="flex bg-gray-800 rounded-lg p-0.5">
+        <div className={`flex rounded-lg p-0.5 ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
           <button
             onClick={() => setTabMode('trending')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -271,7 +275,9 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                 className={`px-2 py-1 rounded text-xs transition-colors ${
                   selectedLang === lang
                     ? 'bg-violet-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    : isDark
+                      ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {lang}
@@ -320,14 +326,18 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
               {filteredProjects.map((project, i) => (
                 <div
                   key={project.repo.fullName || i}
-                  className="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between hover:bg-gray-800/70 transition-colors"
+                  className={`rounded-lg p-3 flex items-center justify-between transition-colors ${
+                    isDark
+                      ? 'bg-gray-800/50 hover:bg-gray-800/70'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-white truncate">
+                    <h3 className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                       {project.repo.fullName}
                     </h3>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">{project.repo.description || t('noDescription')}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                    <p className={`text-xs mt-0.5 truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{project.repo.description || t('noDescription')}</p>
+                    <div className={`flex items-center gap-3 mt-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       {project.repo.language && (
                         <span className="flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full bg-violet-500" />
@@ -456,33 +466,39 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
 
           {/* 设置面板 */}
           {showSettings && (
-            <div className="mb-4 bg-gray-800/50 rounded-lg border border-gray-700 p-4">
-              <h3 className="text-sm font-medium text-white mb-3">{t('discoverySettings')}</h3>
+            <div className={`mb-4 rounded-lg border p-4 ${
+              isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <h3 className={`text-sm font-medium mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('discoverySettings')}</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">{t('searchInterval')}</label>
+                  <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('searchInterval')}</label>
                   <input
                     type="number"
                     min={5}
                     max={1440}
                     value={configForm.intervalMinutes}
                     onChange={e => setConfigForm({ ...configForm, intervalMinutes: Number(e.target.value) })}
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                    className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                      isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">{t('searchesPerRound')}</label>
+                  <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('searchesPerRound')}</label>
                   <input
                     type="number"
                     min={1}
                     max={50}
                     value={configForm.maxPerRound}
                     onChange={e => setConfigForm({ ...configForm, maxPerRound: Number(e.target.value) })}
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                    className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                      isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">{t('minScoreLabel')}</label>
+                  <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('minScoreLabel')}</label>
                   <input
                     type="number"
                     min={0}
@@ -490,7 +506,9 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                     step={0.5}
                     value={configForm.minScore}
                     onChange={e => setConfigForm({ ...configForm, minScore: Number(e.target.value) })}
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                    className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                      isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 </div>
                 <div>
@@ -501,7 +519,9 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                       min={0}
                       value={configForm.minStars}
                       onChange={e => setConfigForm({ ...configForm, minStars: Number(e.target.value) })}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                      className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                        isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                       placeholder={t('minValue')}
                     />
                     <span className="text-gray-500 text-xs">-</span>
@@ -510,28 +530,34 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                       min={0}
                       value={configForm.maxStars}
                       onChange={e => setConfigForm({ ...configForm, maxStars: Number(e.target.value) })}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                      className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                        isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                       placeholder={t('maxValue')}
                     />
                   </div>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs text-gray-400 mb-1">{t('searchTopics')}</label>
+                  <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('searchTopics')}</label>
                   <input
                     type="text"
                     value={configForm.topics.join(', ')}
                     onChange={e => setConfigForm({ ...configForm, topics: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                    className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                      isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                     placeholder="developer-tools, rust, cli, ai, ..."
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs text-gray-400 mb-1">{t('languagesComma')}</label>
+                  <label className={`block text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('languagesComma')}</label>
                   <input
                     type="text"
                     value={configForm.languages.join(', ')}
                     onChange={e => setConfigForm({ ...configForm, languages: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-                    className="w-full bg-gray-900 border border-gray-700 rounded px-2.5 py-1.5 text-sm text-white focus:border-violet-500 focus:outline-none"
+                    className={`w-full rounded px-2.5 py-1.5 text-sm focus:border-violet-500 focus:outline-none ${
+                      isDark ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                     placeholder="Rust, TypeScript, Python, Go"
                   />
                 </div>
@@ -546,7 +572,9 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                 </button>
                 <button
                   onClick={() => setShowSettings(false)}
-                  className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs font-medium transition-colors"
+                  className={`px-4 py-1.5 rounded text-xs font-medium transition-colors ${
+                    isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                  }`}
                 >
                   {t('cancel')}
                 </button>
@@ -568,8 +596,8 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
           {/* 状态信息 */}
           {discoveryStatus && (
             <div className="mb-4 grid grid-cols-3 gap-3">
-              <div className="bg-gray-800/50 rounded-lg p-2.5">
-                <div className="text-xs text-gray-400">{t('statusLabel')}</div>
+              <div className={`rounded-lg p-2.5 ${isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t('statusLabel')}</div>
                 <div className="text-sm font-medium flex items-center gap-1.5 mt-0.5">
                   <span className={`w-2 h-2 rounded-full ${discoveryRunning ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`} />
                   <span className={discoveryRunning ? 'text-green-400' : 'text-gray-400'}>
@@ -577,15 +605,15 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                   </span>
                 </div>
               </div>
-              <div className="bg-gray-800/50 rounded-lg p-2.5">
-                <div className="text-xs text-gray-400">{t('discoveredProjects')}</div>
-                <div className="text-sm font-medium text-white mt-0.5">
+              <div className={`rounded-lg p-2.5 ${isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t('discoveredProjects')}</div>
+                <div className={`text-sm font-medium mt-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {discoveryStatus.discoveriesCount}
                 </div>
               </div>
-              <div className="bg-gray-800/50 rounded-lg p-2.5">
-                <div className="text-xs text-gray-400">{t('lastRun')}</div>
-                <div className="text-sm font-medium text-white mt-0.5 truncate">
+              <div className={`rounded-lg p-2.5 ${isDark ? 'bg-gray-800/50' : 'bg-gray-50'}`}>
+                <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{t('lastRun')}</div>
+                <div className={`text-sm font-medium mt-0.5 truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {formatTime(discoveryStatus.lastRunAt)}
                 </div>
               </div>
@@ -598,11 +626,13 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
               {filteredDiscovery.map((project, i) => (
                 <div
                   key={project.repo.fullName || i}
-                  className="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between hover:bg-gray-800/70 transition-colors"
+                  className={`rounded-lg p-3 flex items-center justify-between transition-colors ${
+                    isDark ? 'bg-gray-800/50 hover:bg-gray-800/70' : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-medium text-white truncate">
+                      <h3 className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {project.repo.fullName}
                       </h3>
                       {project.grade && (
@@ -619,8 +649,8 @@ const TrendingDiscovery: React.FC<TrendingDiscoveryProps> = ({ onEvaluateProject
                         <span className="text-[10px] text-gray-500">{project.totalScore}分</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">{project.repo.description || t('noDescription')}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+                    <p className={`text-xs mt-0.5 truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{project.repo.description || t('noDescription')}</p>
+                    <div className={`flex items-center gap-3 mt-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       {project.repo.language && (
                         <span className="flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full bg-violet-500" />

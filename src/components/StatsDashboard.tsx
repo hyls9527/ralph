@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { tauri } from '../services/tauri';
 import type { StatsData } from '../types';
 import { useI18n } from '../i18n';
+import { useTheme } from '../hooks/useTheme';
 
 const gradeColors: Record<string, string> = {
   S: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
@@ -56,6 +57,7 @@ const languageColors = [
 
 const StatsDashboard: React.FC = () => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,38 +122,38 @@ const StatsDashboard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
-          <div className="text-2xl font-bold text-white">{stats.total}</div>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-4 border`}>
+          <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.total}</div>
           <div className="text-xs text-gray-400 mt-1">{t('totalEvaluated')}</div>
         </div>
-        <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-4 border`}>
           <div className="text-2xl font-bold text-violet-400">{stats.avgScore}</div>
           <div className="text-xs text-gray-400 mt-1">{t('avgScore')}</div>
         </div>
-        <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-4 border`}>
           <div className="text-2xl font-bold text-amber-400">{stats.topScore}</div>
           <div className="text-xs text-gray-400 mt-1">{t('topScore')}</div>
         </div>
-        <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-4 border`}>
           <div className="text-2xl font-bold text-emerald-400">{stats.recent7d}</div>
           <div className="text-xs text-gray-400 mt-1">{t('recent7d')}</div>
         </div>
-        <div className="bg-gray-800/40 rounded-xl p-4 border border-gray-700/50">
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-4 border`}>
           <div className="text-2xl font-bold text-cyan-400">{passRate}%</div>
           <div className="text-xs text-gray-400 mt-1">{t('passRate')}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('scoreDistribution')}</h3>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-5 border`}>
+          <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{t('scoreDistribution')}</h3>
           <div className="space-y-3">
             {(stats.scoreDistribution || []).map(({ bucket, count }) => (
               <div key={bucket} className="flex items-center gap-3">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${bucketBorderColors[bucket] || 'border-gray-500/30 bg-gray-500/10 text-gray-400'}`}>
                   {bucket}
                 </span>
-                <div className="flex-1 bg-gray-700/50 rounded-full h-2.5 overflow-hidden">
+                <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2.5 overflow-hidden`}>
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${bucketColors[bucket] || 'bg-gray-500'}`}
                     style={{ width: `${(count / maxBucketCount) * 100}%` }}
@@ -166,15 +168,15 @@ const StatsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('gradeDistribution')}</h3>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-5 border`}>
+          <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{t('gradeDistribution')}</h3>
           <div className="space-y-3">
             {stats.byGrade.map(({ grade, count }) => (
               <div key={grade} className="flex items-center gap-3">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${gradeColors[grade] || gradeColors.X}`}>
                   {grade}
                 </span>
-                <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       grade === 'S' ? 'bg-violet-500' :
@@ -192,15 +194,15 @@ const StatsDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('trackDistribution')}</h3>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-5 border`}>
+          <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{t('trackDistribution')}</h3>
           <div className="space-y-3">
             {stats.byTrack.map(({ track, count }) => (
               <div key={track} className="flex items-center gap-3">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs border ${trackColors[track] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
                   {({ neglected: t('neglected'), 'high-star': t('highStar'), steady: t('steady') })[track] || track}
                 </span>
-                <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       track === 'neglected' ? 'bg-amber-500' :
@@ -215,15 +217,15 @@ const StatsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('languageDistribution')}</h3>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-5 border`}>
+          <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{t('languageDistribution')}</h3>
           <div className="space-y-2.5">
             {(stats.byLanguage || []).map(({ language, count }, i) => (
               <div key={language} className="flex items-center gap-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-gray-600/30 bg-gray-700/30 text-gray-300 min-w-[70px]">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs border ${isDark ? 'border-gray-600/30 bg-gray-700/30 text-gray-300' : 'border-gray-300/60 bg-gray-100/80 text-gray-600'} min-w-[70px]`}>
                   {language}
                 </span>
-                <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${languageColors[i % languageColors.length]}`}
                     style={{ width: `${(count / maxLanguageCount) * 100}%` }}
@@ -238,15 +240,15 @@ const StatsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gray-800/40 rounded-xl p-5 border border-gray-700/50">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">{t('evidenceDistribution')}</h3>
+        <div className={`${isDark ? 'bg-gray-800/40 border-gray-700/50' : 'bg-white/60 border-gray-200/80'} rounded-xl p-5 border`}>
+          <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{t('evidenceDistribution')}</h3>
           <div className="space-y-2.5">
             {(stats.byEvidence || []).map(({ evidenceLevel, count }) => (
               <div key={evidenceLevel} className="flex items-center gap-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-gray-600/30 bg-gray-700/30 text-gray-300 min-w-[90px]">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs border ${isDark ? 'border-gray-600/30 bg-gray-700/30 text-gray-300' : 'border-gray-300/60 bg-gray-100/80 text-gray-600'} min-w-[90px]`}>
                   {evidenceLabels[evidenceLevel] || evidenceLevel}
                 </span>
-                <div className="flex-1 bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${evidenceColors[evidenceLevel] || 'bg-gray-500'}`}
                     style={{ width: `${(count / maxEvidenceCount) * 100}%` }}

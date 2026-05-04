@@ -25,6 +25,20 @@ vi.mock('../../services/tauri', () => ({
   },
 }));
 
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
+    const map: Record<string, string> = {
+      searchPlaceholder: '搜索 GitHub 项目',
+      search: '搜索',
+    };
+    return map[key] || key;
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
+
 describe('SearchBar', () => {
   beforeEach(() => {
     vi.clearAllMocks();

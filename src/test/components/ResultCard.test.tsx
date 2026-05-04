@@ -3,18 +3,25 @@ import { renderToString } from 'react-dom/server';
 import ResultCard from '../../components/ResultCard';
 import type { ProjectRecommendation } from '../../types';
 
-vi.mock('../../i18n', () => ({
-  t: (key: string) => {
+vi.mock('../../i18n', () => {
+  const mockT = (key: string) => {
     const map: Record<string, string> = {
       detail: '详情',
       favorite: '收藏',
       unfavorite: '取消收藏',
       share: '分享',
       report: '报告',
+      trackNeglected: '被忽视',
+      trackHighStar: '高星',
+      trackSteady: '稳态',
     };
     return map[key] || key;
-  },
-}));
+  };
+  return {
+    t: mockT,
+    useI18n: () => ({ t: mockT, lang: 'zh', switchLang: vi.fn() }),
+  };
+});
 
 function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {
