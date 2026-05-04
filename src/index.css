@@ -1,84 +1,244 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Ralph 品牌色 */
 :root {
-  --ralph-primary: #8b5cf6;
-  --ralph-primary-hover: #7c3aed;
-  --ralph-bg: #0f0f14;
-  --ralph-surface: #1a1a24;
-  --ralph-surface-hover: #22222f;
-  --ralph-border: #2a2a3a;
-  --ralph-text: #e4e4ed;
-  --ralph-text-muted: #8b8ba0;
-  --ralph-success: #10b981;
-  --ralph-warning: #f59e0b;
-  --ralph-error: #ef4444;
+  --ralph-primary: #8B5CF6;
+  --ralph-primary-hover: #7C3AED;
+  --ralph-bg: #0F0F14;
+  --ralph-surface: #1A1A24;
+  --ralph-surface-hover: #22222F;
+  --ralph-border: #2A2A3A;
+  --ralph-text: #E4E4ED;
+  --ralph-text-muted: #8B8BA0;
+  --ralph-success: #10B981;
+  --ralph-warning: #F59E0B;
+  --ralph-error: #EF4444;
+
+  /* Spacing Scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Typography Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
 }
 
-/* 自定义动画 */
+/* ========================================
+   Animation System
+   ======================================== */
+
+/* Base Animations */
 @keyframes pulse-ring {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Animations */
+@keyframes modal-enter {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modal-exit {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.95) translateY(10px); }
+}
+
+@keyframes backdrop-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Stagger List Animation */
+@keyframes stagger-fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page Transitions */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes content-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button Ripple */
+@keyframes ripple-animation {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Focus Pulse */
+@keyframes focus-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Skeleton Pulse */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* ========================================
+   Animation Classes
+   ======================================== */
+
+.animate-spin-slow { animation: spin-slow 1.5s linear infinite; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-modal-enter { animation: modal-enter 0.2s ease-out forwards; }
+.animate-modal-exit { animation: modal-exit 0.15s ease-in forwards; }
+.animate-backdrop-enter { animation: backdrop-enter 0.2s ease-out forwards; }
+.animate-page-enter { animation: page-enter 0.25s ease-out; }
+.animate-content-fade-up { animation: content-fade-up 0.4s ease-out; }
+.skeleton-pulse { animation: skeleton-pulse 1.5s ease-in-out infinite; }
+
+/* Stagger Items */
+.stagger-item {
+  opacity: 0;
+  animation: stagger-fade-in 0.3s ease-out forwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 50ms; }
+.stagger-item:nth-child(3) { animation-delay: 100ms; }
+.stagger-item:nth-child(4) { animation-delay: 150ms; }
+.stagger-item:nth-child(5) { animation-delay: 200ms; }
+.stagger-item:nth-child(6) { animation-delay: 250ms; }
+.stagger-item:nth-child(7) { animation-delay: 300ms; }
+.stagger-item:nth-child(8) { animation-delay: 350ms; }
+
+/* Button Micro-interactions */
+.btn-primary:active { transform: scale(0.97); }
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+/* ========================================
+   Scrollbar Styles
+   ======================================== */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--ralph-bg); }
+::-webkit-scrollbar-thumb { background: var(--ralph-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ralph-text-muted); }
+
+/* ========================================
+   Focus & Accessibility
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--ralph-primary);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--ralph-primary);
+  color: white;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus { top: 0; }
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Mobile Touch Targets */
+@media (max-width: 768px) {
+  .touch-target { min-width: 44px; min-height: 44px; }
+  .btn-mobile { padding: 12px 20px; font-size: 16px; }
+}
+
+/* Desktop Hover Effects */
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+@media (hover: none) {
+  .hover-lift:hover { transform: none; box-shadow: none; }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --ralph-border: #ffffff;
+    --ralph-text: #ffffff;
+    --ralph-text-muted: #cccccc;
   }
 }
 
-.animate-spin-slow {
-  animation: spin-slow 1.5s linear infinite;
-}
+/* ========================================
+   Reduced Motion Support (WCAG 2.3.3)
+   ======================================== */
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ralph-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--ralph-border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--ralph-text-muted);
-}
-
-/* WCAG 2.2: Animation from Interaction (2.3.3) - Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
   .animate-spin-slow,
-  .animate-pulse-ring {
+  .animate-pulse-ring,
+  .animate-modal-enter,
+  .animate-modal-exit,
+  .animate-backdrop-enter,
+  .animate-page-enter,
+  .animate-content-fade-up,
+  .stagger-item,
+  .skeleton-pulse {
     animation: none !important;
   }
 
