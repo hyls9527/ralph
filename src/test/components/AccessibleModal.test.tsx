@@ -7,6 +7,19 @@ vi.mock('../../lib/focus-trap', () => ({
   FocusTrap: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
+vi.mock('../../hooks/useTheme', () => ({
+  useTheme: () => ({ isDark: false, toggleTheme: vi.fn() }),
+}));
+
+vi.mock('../../i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+    lang: 'zh',
+    switchLang: vi.fn(),
+  }),
+  t: (key: string) => key,
+}));
+
 describe('AccessibleModal', () => {
   it('open=false 时返回 null', () => {
     const html = renderToString(

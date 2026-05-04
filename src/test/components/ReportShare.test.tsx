@@ -1,7 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import ReportShare from '../../components/ReportShare';
 import type { ProjectRecommendation } from '../../types';
+
+vi.mock('../../hooks/useTheme', () => ({
+  useTheme: () => ({ isDark: false, toggleTheme: vi.fn() }),
+}));
+
+vi.mock('../../i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+    lang: 'zh',
+    switchLang: vi.fn(),
+  }),
+  t: (key: string) => key,
+}));
 
 function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {

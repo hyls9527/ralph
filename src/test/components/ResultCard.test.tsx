@@ -3,6 +3,10 @@ import { renderToString } from 'react-dom/server';
 import ResultCard from '../../components/ResultCard';
 import type { ProjectRecommendation } from '../../types';
 
+vi.mock('../../hooks/useTheme', () => ({
+  useTheme: () => ({ isDark: false, toggleTheme: vi.fn() }),
+}));
+
 vi.mock('../../i18n', () => {
   const mockT = (key: string) => {
     const map: Record<string, string> = {

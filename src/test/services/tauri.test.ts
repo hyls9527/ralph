@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { tauri, type SearchResponse, type BadgeInfo } from '../../services/tauri';
+import { tauri, __resetInvokeCache, type SearchResponse, type BadgeInfo } from '../../services/tauri';
 
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn(),
@@ -11,6 +11,7 @@ const mockedInvoke = vi.mocked(invoke);
 describe('tauri 服务层', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    __resetInvokeCache();
   });
 
   describe('searchAndEvaluate', () => {

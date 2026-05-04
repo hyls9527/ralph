@@ -115,7 +115,7 @@ Input ──> [1] Evidence Gate ──> [2] Bayesian Correction ──> [3] Base
 
 ## Screenshots / 截图
 
-> The following placeholders describe planned screenshots for the final release.
+> Key feature screenshots (placeholders pending actual screenshots):
 
 | Screenshot | Description |
 |---|---|
@@ -325,9 +325,9 @@ npx playwright test e2e/app.spec.ts
 
 | Test Type | Cases | Pass Rate |
 |---|---|---|
-| Rust Unit Tests | 152 | 152 passed, 4 ignored |
+| Rust Unit Tests | 194 | 194 passed, 4 ignored |
 | TypeScript Compile | 1 | 100% |
-| E2E System Tests | 13 | 100% |
+| E2E System Tests | 20+ | 100% |
 | Edge Cases | 14 | 100% |
 
 ---

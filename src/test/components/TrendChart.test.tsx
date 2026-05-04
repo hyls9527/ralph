@@ -1,7 +1,50 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import TrendChart from '../../components/TrendChart';
 import type { ProjectRecommendation } from '../../types';
+
+vi.mock('../../hooks/useTheme', () => ({
+  useTheme: () => ({ isDark: false, toggleTheme: vi.fn() }),
+}));
+
+vi.mock('../../i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        sGrade: 'S 级',
+        aGrade: 'A 级',
+        bGrade: 'B 级',
+        notSelected: '未入选',
+        neglected: '被忽视',
+        highStar: '高星',
+        steady: '稳态',
+        scoreDistributionStats: '评分分布统计',
+        avgScore: '平均分',
+        totalProjects: '个项目',
+        trackDistribution: '轨道分布',
+      };
+      return map[key] || key;
+    },
+    lang: 'zh',
+    switchLang: vi.fn(),
+  }),
+  t: (key: string) => {
+    const map: Record<string, string> = {
+      sGrade: 'S 级',
+      aGrade: 'A 级',
+      bGrade: 'B 级',
+      notSelected: '未入选',
+      neglected: '被忽视',
+      highStar: '高星',
+      steady: '稳态',
+      scoreDistributionStats: '评分分布统计',
+      avgScore: '平均分',
+      totalProjects: '个项目',
+      trackDistribution: '轨道分布',
+    };
+    return map[key] || key;
+  },
+}));
 
 function makeProject(overrides: Partial<ProjectRecommendation> = {}): ProjectRecommendation {
   return {

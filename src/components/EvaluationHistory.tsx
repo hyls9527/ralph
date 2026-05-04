@@ -21,17 +21,17 @@ const gradeColors: Record<string, string> = {
   X: 'bg-gray-500/30 text-gray-400 border-gray-500/40',
 };
 
-const trackLabels: Record<string, string> = {
-  neglected: t('neglected'),
-  'high-star': t('highStar'),
-  steady: t('steady'),
-};
-
 const EvaluationHistory: React.FC<EvaluationHistoryProps> = ({ repoFullName, isLight }) => {
   const { t } = useI18n();
   const [trend, setTrend] = useState<ScoreTrendPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const trackLabels: Record<string, string> = {
+    neglected: t('neglected'),
+    'high-star': t('highStar'),
+    steady: t('steady'),
+  };
 
   const fetchTrend = useCallback(async () => {
     if (!repoFullName) return;

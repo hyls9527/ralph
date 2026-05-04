@@ -54,26 +54,43 @@ export interface BatchSession {
   updatedAt: string;
 }
 
-const isTauri = () => {
-  try {
-    return typeof window !== 'undefined' && '__TAURI__' in window;
-  } catch {
-    return false;
-  }
+type InvokeFn = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
+
+let _invokeFn: InvokeFn | null = null;
+let _invokePromise: Promise<InvokeFn> | null = null;
+
+/** Reset cached invoke (for testing only) */
+export function __resetInvokeCache(): void {
+  _invokeFn = null;
+  _invokePromise = null;
+}
+
+const loadInvoke = async (): Promise<InvokeFn> => {
+  if (_invokeFn) return _invokeFn;
+  if (_invokePromise) return _invokePromise;
+
+  _invokePromise = (async () => {
+    try {
+      const mod = await import('@tauri-apps/api/core');
+      if (typeof mod.invoke === 'function') {
+        _invokeFn = mod.invoke;
+        return _invokeFn;
+      }
+    } catch {
+      // not in Tauri environment
+    }
+    const fallback: InvokeFn = () => Promise.resolve({} as never);
+    _invokeFn = fallback;
+    return _invokeFn;
+  })();
+
+  return _invokePromise;
 };
 
-let invoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
-
-if (isTauri()) {
-  try {
-    const { invoke: _invoke } = require('@tauri-apps/api/core');
-    invoke = _invoke;
-  } catch {
-    invoke = (_cmd, _args) => Promise.resolve({} as T);
-  }
-} else {
-  invoke = (_cmd, _args) => Promise.resolve({} as T);
-}
+export const invoke = async <T>(cmd: string, args?: Record<string, unknown>): Promise<T> => {
+  const fn = await loadInvoke();
+  return args !== undefined ? fn(cmd, args) : fn(cmd);
+};
 
 export const tauri = {
   searchAndEvaluate: (query: string) =>

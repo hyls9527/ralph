@@ -143,6 +143,7 @@ mod security_tests {
         let path = temp_db_path();
         let db = Database::new(&path).expect("Failed to create test DB");
 
+        let long_name = "test".to_owned() + &"x".repeat(1000);
         let special_names = vec![
             "test\u{0000}null",
             "test\nnewline",
@@ -156,7 +157,7 @@ mod security_tests {
             "test_underscore",
             "test😀emoji",
             "テスト日本語",
-            "test" + &"x".repeat(1000),
+            long_name.as_str(),
         ];
 
         for name in &special_names {
@@ -205,7 +206,7 @@ mod security_tests {
     #[test]
     fn test_input_validation_boundary_256() {
         let client = GitHubClient::new(None);
-        let rt = tokio::runtime::Builder::new_current_thread().build().unwrap();
+        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
         let query = "a".repeat(256);
         let result = rt.block_on(client.search_repos(&query, 10));
         assert!(result.is_ok() || result.is_err());
@@ -214,7 +215,7 @@ mod security_tests {
     #[test]
     fn test_per_page_clamping() {
         let client = GitHubClient::new(None);
-        let rt = tokio::runtime::Builder::new_current_thread().build().unwrap();
+        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
 
         let result_zero = rt.block_on(client.search_repos("rust", 0));
         assert!(result_zero.is_ok() || result_zero.is_err());
@@ -226,7 +227,7 @@ mod security_tests {
     #[test]
     fn test_special_characters_in_query() {
         let client = GitHubClient::new(None);
-        let rt = tokio::runtime::Builder::new_current_thread().build().unwrap();
+        let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
 
         let special_queries = vec![
             "test<script>alert(1)</script>",
