@@ -30,6 +30,10 @@ const FavoritesManager: React.FC<FavoritesManagerProps> = ({ isLight }) => {
     try {
       await loadFavorites();
       const data = await tauri.getFavorites();
+      if (!Array.isArray(data)) {
+        setFavoriteDetails([]);
+        return;
+      }
       const details: FavoriteItem[] = data.map(f => {
         try {
           const parsed = JSON.parse(f.evaluationJson) as FavoriteItem;

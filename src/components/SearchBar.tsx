@@ -48,7 +48,7 @@ const SearchBar = function SearchBar({ ref: externalRef }: SearchBarProps) {
         const data = await tauri.getSearchHistory();
         historyCacheRef.current = data;
       } catch (e) {
-        console.error('Failed to preload search history:', e);
+        console.warn('Failed to preload search history:', e);
       }
     }
   }, []);

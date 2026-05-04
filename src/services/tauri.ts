@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api/core';
 import type { ProjectRecommendation, StatsData } from '../types';
 
 export interface SearchMeta {
@@ -22,6 +21,58 @@ export interface BadgeInfo {
   url: string;
   markdown: string;
   html: string;
+}
+
+export interface DiscoveryStatus {
+  running: boolean;
+  discoveriesCount: number;
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  currentRound: number;
+  totalEvaluated: number;
+}
+
+export interface DiscoveryConfig {
+  topics: string[];
+  languages: string[];
+  minStars: number;
+  maxStars: number;
+  minScore: number;
+  intervalMinutes: number;
+  maxPerRound: number;
+}
+
+export interface BatchSession {
+  sessionId: string;
+  query: string;
+  totalRepos: number;
+  processed: number;
+  evaluated: number;
+  skipped: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const isTauri = () => {
+  try {
+    return typeof window !== 'undefined' && '__TAURI__' in window;
+  } catch {
+    return false;
+  }
+};
+
+let invoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
+
+if (isTauri()) {
+  try {
+    const { invoke: _invoke } = require('@tauri-apps/api/core');
+    invoke = _invoke;
+  } catch {
+    invoke = (_cmd, _args) => Promise.resolve({} as T);
+  }
+} else {
+  invoke = (_cmd, _args) => Promise.resolve({} as T);
 }
 
 export const tauri = {
@@ -106,36 +157,5 @@ export const tauri = {
   deleteBatchSession: (sessionId: string) =>
     invoke('delete_batch_session', { sessionId }),
 } as const;
-
-export interface DiscoveryStatus {
-  running: boolean;
-  discoveriesCount: number;
-  lastRunAt: string | null;
-  nextRunAt: string | null;
-  currentRound: number;
-  totalEvaluated: number;
-}
-
-export interface DiscoveryConfig {
-  topics: string[];
-  languages: string[];
-  minStars: number;
-  maxStars: number;
-  minScore: number;
-  intervalMinutes: number;
-  maxPerRound: number;
-}
-
-export interface BatchSession {
-  sessionId: string;
-  query: string;
-  totalRepos: number;
-  processed: number;
-  evaluated: number;
-  skipped: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export type TauriService = typeof tauri;
