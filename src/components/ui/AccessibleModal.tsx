@@ -54,7 +54,7 @@ export const AccessibleModal: React.FC<AccessibleModalProps> = ({
       }`}
       onClick={closeOnClickOutside ? handleClose : undefined}
       role="presentation"
-      style={{ transition: 'opacity 0.15s ease-in' }}
+      style={{ transition: 'opacity var(--duration-fast) var(--ease-in-expo)' }}
     >
       <FocusTrap
         active={open && !isClosing}

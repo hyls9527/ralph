@@ -248,7 +248,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ project, onDetailClick, isFavor
   };
 
   return (
-    <div className={`${isDark ? 'bg-gray-900/60 border-gray-800' : 'bg-white/80 border-gray-200'} backdrop-blur rounded-xl border hover:border-violet-500/40 transition-all duration-200 animate-fade-in`}>
+    <div className={`${isDark ? 'bg-gray-900/60 border-gray-800' : 'bg-white/80 border-gray-200'} backdrop-blur rounded-xl border hover:border-violet-500/40 transition-all animate-fade-in`} style={{ transitionDuration: 'var(--duration-normal)' }}>
       {/* 否决项指示器 */}
       {hasVetoFlags && (
         <div className="h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-rose-500 rounded-t-xl" />

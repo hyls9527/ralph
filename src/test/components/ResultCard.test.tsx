@@ -15,6 +15,7 @@ vi.mock('../../i18n', () => {
       unfavorite: '取消收藏',
       share: '分享',
       report: '报告',
+      generateReport: '生成报告',
       trackNeglected: '被忽视',
       trackHighStar: '高星',
       trackSteady: '稳态',

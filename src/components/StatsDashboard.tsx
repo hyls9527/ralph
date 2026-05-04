@@ -155,8 +155,8 @@ const StatsDashboard: React.FC = () => {
                 </span>
                 <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2.5 overflow-hidden`}>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${bucketColors[bucket] || 'bg-gray-500'}`}
-                    style={{ width: `${(count / maxBucketCount) * 100}%` }}
+                    className={`h-full rounded-full transition-all ${bucketColors[bucket] || 'bg-gray-500'}`}
+                    style={{ width: `${(count / maxBucketCount) * 100}%`, transitionDuration: 'var(--duration-deliberate)' }}
                   />
                 </div>
                 <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
@@ -178,12 +178,12 @@ const StatsDashboard: React.FC = () => {
                 </span>
                 <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
+                    className={`h-full rounded-full transition-all ${
                       grade === 'S' ? 'bg-violet-500' :
                       grade === 'A' ? 'bg-blue-500' :
                       grade === 'B' ? 'bg-emerald-500' : 'bg-gray-500'
                     }`}
-                    style={{ width: `${(count / maxGradeCount) * 100}%` }}
+                    style={{ width: `${(count / maxGradeCount) * 100}%`, transitionDuration: 'var(--duration-deliberate)' }}
                   />
                 </div>
                 <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
@@ -204,11 +204,11 @@ const StatsDashboard: React.FC = () => {
                 </span>
                 <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
+                    className={`h-full rounded-full transition-all ${
                       track === 'neglected' ? 'bg-amber-500' :
                       track === 'high-star' ? 'bg-rose-500' : 'bg-cyan-500'
                     }`}
-                    style={{ width: `${(count / maxTrackCount) * 100}%` }}
+                    style={{ width: `${(count / maxTrackCount) * 100}%`, transitionDuration: 'var(--duration-deliberate)' }}
                   />
                 </div>
                 <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
@@ -227,8 +227,8 @@ const StatsDashboard: React.FC = () => {
                 </span>
                 <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${languageColors[i % languageColors.length]}`}
-                    style={{ width: `${(count / maxLanguageCount) * 100}%` }}
+                    className={`h-full rounded-full transition-all ${languageColors[i % languageColors.length]}`}
+                    style={{ width: `${(count / maxLanguageCount) * 100}%`, transitionDuration: 'var(--duration-deliberate)' }}
                   />
                 </div>
                 <span className="text-sm text-gray-400 w-8 text-right">{count}</span>
@@ -250,8 +250,8 @@ const StatsDashboard: React.FC = () => {
                 </span>
                 <div className={`flex-1 ${isDark ? 'bg-gray-700/50' : 'bg-gray-200/60'} rounded-full h-2 overflow-hidden`}>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${evidenceColors[evidenceLevel] || 'bg-gray-500'}`}
-                    style={{ width: `${(count / maxEvidenceCount) * 100}%` }}
+                    className={`h-full rounded-full transition-all ${evidenceColors[evidenceLevel] || 'bg-gray-500'}`}
+                    style={{ width: `${(count / maxEvidenceCount) * 100}%`, transitionDuration: 'var(--duration-deliberate)' }}
                   />
                 </div>
                 <span className="text-sm text-gray-400 w-8 text-right">{count}</span>

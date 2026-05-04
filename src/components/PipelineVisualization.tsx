@@ -88,10 +88,10 @@ const PipelineVisualization: React.FC<PipelineVisualizationProps> = ({ project }
 
                   <div className="flex-1 h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${
+                      className={`h-full rounded-full transition-all ${
                         isUp ? 'bg-emerald-500' : isDown ? 'bg-rose-500' : 'bg-gray-500'
                       }`}
-                      style={{ width: `${barWidth}%` }}
+                      style={{ width: `${barWidth}%`, transitionDuration: 'var(--duration-dramatic)' }}
                     />
                   </div>
                 </div>

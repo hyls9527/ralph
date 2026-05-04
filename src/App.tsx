@@ -262,7 +262,7 @@ function App() {
   if (error) return <ErrorFallback error={error} onRetry={() => setError(null)} />;
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-900'} transition-colors duration-200`}>
+    <div className={`min-h-screen ${isDark ? 'bg-gray-950 text-gray-100' : 'bg-gray-50 text-gray-900'} transition-colors`} style={{ transitionDuration: 'var(--duration-normal)' }}>
       <Header />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
@@ -436,7 +436,7 @@ function App() {
             ) : (
               <div className="space-y-4">
                 {paginatedResults.map((project) => (
-                  <div key={project.repo.fullName} className={`rounded-xl p-0 transition-all duration-200 ${!isDark ? 'bg-white/60 border-gray-200 hover:border-violet-400/40' : 'bg-gray-900/60 border-gray-800 hover:border-violet-500/40'} backdrop-blur border overflow-hidden`}>
+                  <div key={project.repo.fullName} className={`rounded-xl p-0 transition-all ${!isDark ? 'bg-white/60 border-gray-200 hover:border-violet-400/40' : 'bg-gray-900/60 border-gray-800 hover:border-violet-500/40'} backdrop-blur border overflow-hidden`} style={{ transitionDuration: 'var(--duration-normal)' }}>
                     {compareMode && (
                       <button onClick={() => toggleProjectSelection(project.repo.fullName)}
                         className={`absolute -left-1 top-4 w-5 h-5 rounded border flex items-center justify-center z-10 transition-all ${isSelected(project.repo.fullName) ? 'bg-violet-500 border-violet-500 text-white' : 'border-gray-600 hover:border-violet-500'}`}>
@@ -533,8 +533,8 @@ function App() {
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-1.5">
                   <div
-                    className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
-                    style={{ width: `${batchProgress.total > 0 ? (batchProgress.processed / batchProgress.total) * 100 : 0}%` }}
+                    className="bg-violet-500 h-1.5 rounded-full transition-all"
+                    style={{ width: `${batchProgress.total > 0 ? (batchProgress.processed / batchProgress.total) * 100 : 0}%`, transitionDuration: 'var(--duration-slow)' }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1 truncate">{batchProgress.currentRepo}</p>
